@@ -1,19 +1,17 @@
 package com.advent23;
 
-import com.advent23.helper.Helper;
-
 import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class Problem1 {
-    private final Helper help;
+public class Problem1 extends ProblemBase {
 
-    public Problem1(InputStream in, OutputStreamWriter out) {
-        this.help = new Helper(new BufferedReader(new InputStreamReader(in)), new PrintWriter(out));
+    public Problem1(String fileName) {
+        super(fileName);
     }
 
-    public long solve() throws IOException {
+    @Override
+    public AdventResult solve() throws IOException {
         IntSummaryStatistics is = new IntSummaryStatistics();
         String next;
         int first = -1;
@@ -42,12 +40,7 @@ public class Problem1 {
             first = -1;
             last = -1;
         }
-        return is.getSum();
-    }
-
-    public static Problem1 ofTestFile(String fileName) {
-        InputStream resourceAsStream = Problem1.class.getClassLoader().getResourceAsStream(fileName);
-        return new Problem1(resourceAsStream, new OutputStreamWriter(System.out));
+        return AdventResult.ofStr(is.getSum());
     }
 
     static Map<String, Integer> StrToNum = new HashMap<>(){{
@@ -71,11 +64,10 @@ public class Problem1 {
     static Set<NumberKey> NUMS = StrToNum.entrySet().stream()
             .map((k) -> new NumberKey(k.getKey(), k.getKey().toCharArray(), k.getKey().length(), StrToNum.get(k.getKey())))
             .collect(Collectors.toSet());
-
     static Set<Character> START_LETTERS = NUMS.stream().map((k) -> k.arr[0]).collect(Collectors.toSet());
-
     record NumberKey(String name, char[] arr, int size, int number) {}
-    public long solveText() throws IOException {
+
+    public AdventResult solveText() throws IOException {
         IntSummaryStatistics is = new IntSummaryStatistics();
         String next;
         char[] charArray;
@@ -98,7 +90,7 @@ public class Problem1 {
             int value = (q.getFirst() * 10) + q.getLast();
             is.accept(value);
         }
-        return is.getSum();
+        return AdventResult.ofLong(is.getSum());
     }
 
     private static NumberKey readNumber(char[] charArray, int n, int pos) {

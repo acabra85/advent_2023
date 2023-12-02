@@ -27,8 +27,7 @@ public class Helper {final BufferedReader bf;
     }
 
     public String next() throws IOException {
-        String s = bf.readLine();
-        return s;
+        return bf.readLine();
     }
 
     public void close() throws IOException {
