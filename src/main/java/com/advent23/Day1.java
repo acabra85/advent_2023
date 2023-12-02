@@ -4,9 +4,9 @@ import java.io.*;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class Problem1 extends ProblemBase {
+public class Day1 extends ProblemBase {
 
-    public Problem1(String fileName) {
+    public Day1(String fileName) {
         super(fileName);
     }
 

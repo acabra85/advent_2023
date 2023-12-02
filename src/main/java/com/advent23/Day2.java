@@ -2,9 +2,10 @@ package com.advent23;
 
 import java.io.IOException;
 import java.util.ArrayDeque;
+import java.util.InputMismatchException;
 
-public class Problem3 extends ProblemBase {
-    public Problem3(String fileName) {
+public class Day2 extends ProblemBase {
+    public Day2(String fileName) {
         super(fileName);
     }
 
@@ -21,7 +22,7 @@ public class Problem3 extends ProblemBase {
        return new AdventResult(sum);
     }
 
-    private Game parseLine(String line) {
+    static Game parseLine(String line) {
         if (!line.contains(": ")) {
             int id = Integer.parseInt(line.split(":")[0].split(" ")[1]);
             return new Game(id, null);
@@ -32,20 +33,20 @@ public class Problem3 extends ProblemBase {
         if (gameValues[1].contains(";")) {
             String[] reveals = gameValues[1].split("; ");
             for (String reveal : reveals) {
-                if (reveal.contains(",")) {
-                    q.add(new RevealBuilder().cubes(reveal.split(", ")).build());
-                } else {
-                    q.add(new RevealBuilder().cube(reveal.split(" ")).build());
-                }
+                processCubes(q, reveal);
             }
         } else {
-            if (gameValues[1].contains(",")) {
-                q.add(new RevealBuilder().cubes(gameValues[1].split(", ")).build());
-            } else {
-                q.add(new RevealBuilder().cube(gameValues[1].split(" ")).build());
-            }
+            processCubes(q, gameValues[1]);
         }
         return new Game(id, q);
+    }
+
+    private static void processCubes(ArrayDeque<Reveal> q, String reveal) {
+        if (reveal.contains(",")) {
+            q.add(new RevealBuilder().cubes(reveal.split(", ")).build());
+        } else {
+            q.add(new RevealBuilder().cube(reveal.split(" ")).build());
+        }
     }
 
     public AdventResult solveMinimal() throws IOException {
@@ -120,15 +121,15 @@ public class Problem3 extends ProblemBase {
         public RevealBuilder cube(String[] cubeComps) {
             int num = Integer.parseInt(cubeComps[0]);
             if(cubeComps[1].charAt(0) == 'r') {
-                red(num);
+                return red(num);
             }
             if(cubeComps[1].charAt(0) == 'g') {
-                green(num);
+                return green(num);
             }
             if(cubeComps[1].charAt(0) == 'b') {
-                blue(num);
+                return blue(num);
             }
-            return this;
+            throw new InputMismatchException("color of cube unknown: " + cubeComps[1]);
         }
 
         public RevealBuilder cubes(String[] cubes) {
