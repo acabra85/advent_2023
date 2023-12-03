@@ -15,7 +15,9 @@ public class Solver {
 //        System.out.println("PT3:" + new Day2("input_t2.txt").solve());
 //        System.out.println("PT3:" + new Day2("input_t2.txt").solveMinimal());
 //        System.out.println("PT3:" + new Day2("input_p2.txt").solveMinimal());
-        System.out.println("Day3:" + new Day3("input_d3t.txt").solve()); //4361
-        System.out.println("Day3:" + new Day3("input_d3.txt").solve());
+//        System.out.println("Day3 Test:" + new Day3("input_d3t.txt").solve()); //4361
+//        System.out.println("Day3:" + new Day3("input_d3.txt").solve());
+//        System.out.println("Day3 P2 Test:" + new Day3("input_d3t.txt").solvePart2()); //467835
+        System.out.println("Day3 P2:" + new Day3("input_d3.txt").solvePart2());
     }
 }

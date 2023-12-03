@@ -67,7 +67,8 @@ public class Day1 extends ProblemBase {
     static Set<Character> START_LETTERS = NUMS.stream().map((k) -> k.arr[0]).collect(Collectors.toSet());
     record NumberKey(String name, char[] arr, int size, int number) {}
 
-    public AdventResult solveText() throws IOException {
+    @Override
+    public AdventResult solvePart2() throws IOException {
         IntSummaryStatistics is = new IntSummaryStatistics();
         String next;
         char[] charArray;

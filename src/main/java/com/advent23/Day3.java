@@ -11,14 +11,25 @@ public class Day3 extends ProblemBase {
     }
 
     @Override
-    public AdventResult solve() throws IOException {String line;
+    public AdventResult solve() throws IOException {
+        String line;
         AdventEngine.Builder ab = new AdventEngine.Builder();
         while((line = this.help.next()) != null) {
             ab.accept(line);
         }
         final AdventEngine build = ab.build();
-        //System.out.println(build);
         return new AdventResult(build.sumParts());
+    }
+
+    @Override
+    public AdventResult solvePart2() throws IOException {
+        String line;
+        AdventEngine.Builder ab = new AdventEngine.Builder();
+        while((line = this.help.next()) != null) {
+            ab.accept(line);
+        }
+        final AdventEngine build = ab.build();
+        return new AdventResult(build.sumGearRatios());
     }
 
     record Coord(int i, int j) {}
@@ -49,6 +60,35 @@ public class Day3 extends ProblemBase {
             return sum;
         }
 
+        private long sumGearRatios() {
+            long sum = 0;
+            for (int i = 0; i < lines.size(); ++i) {
+                final EngineLine engineLine = lines.get(i);
+                for (int j = 0; j < engineLine.length; ++j) {
+                    final char ch = engineLine.charAt(j);
+                    if(ch == '*') {
+                        sum += this.processGearRationSum(i, j);
+                    }
+                }
+            }
+            return sum;
+        }
+
+        private long processGearRationSum(int i, int j) {
+            Set<EnginePartNumber> set = new HashSet<>();
+            for (Coord coord : COORDS) {
+                EnginePartNumber epn = getNumber(i+coord.i, j+coord.j);
+                if (epn != null && !set.contains(epn)) {
+                    set.add(epn);
+                }
+                if (set.size() > 2) {
+                    return 0;
+                }
+            }
+            if (set.size() != 2) return 0;
+            return set.stream().map((p) -> p.value).reduce(1L, (a,b) -> a*b);
+        }
+
         private long processSum(int i, int j) {
             long sum = 0;
             for (Coord coord : COORDS) {
@@ -59,18 +99,6 @@ public class Day3 extends ProblemBase {
                 }
             }
             return sum;
-        }
-
-        @Override
-        public String toString() {
-            if (strRep == null) {
-                StringBuilder sb = new StringBuilder();
-                for (EngineLine line : lines) {
-                    sb.append(line.chars).append('\n');
-                }
-                strRep = sb.toString();
-            }
-            return strRep;
         }
 
         private EnginePartNumber getNumber(int i, int j) {
@@ -98,7 +126,7 @@ public class Day3 extends ProblemBase {
             return j < engineLine.chars.length;
         }
 
-        public static class Builder {
+        static class Builder {
             ArrayList<EngineLine> iParts = new ArrayList<>();
 
             public void accept(String toCharArray) {
@@ -128,6 +156,18 @@ public class Day3 extends ProblemBase {
                 return adventEngine;
             }
         }
+
+        @Override
+        public String toString() {
+            if (strRep == null) {
+                StringBuilder sb = new StringBuilder();
+                for (EngineLine line : lines) {
+                    sb.append(line.chars).append('\n');
+                }
+                strRep = sb.toString();
+            }
+            return strRep;
+        }
     }
 
     static class EnginePartNumber {
@@ -136,6 +176,18 @@ public class Day3 extends ProblemBase {
         private final int endIdx;
         private boolean counted;
         public String str;
+
+        @Override
+        public int hashCode() {
+            return str.hashCode();
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (o == null) return false;
+            final EnginePartNumber o1 = (EnginePartNumber) o;
+            return o1 == this;
+        }
 
         EnginePartNumber(long value, int startIdx, int endIdx) {
             this.value = value;

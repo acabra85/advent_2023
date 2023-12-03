@@ -49,7 +49,8 @@ public class Day2 extends ProblemBase {
         }
     }
 
-    public AdventResult solveMinimal() throws IOException {
+    @Override
+    public AdventResult solvePart2() throws IOException {
         String line;
         long sum = 0;
         while((line = this.help.next()) != null) {
