@@ -12,8 +12,8 @@ public class Day3 extends ProblemBase {
 
     @Override
     public AdventResult solve() throws IOException {
-        String line;
         AdventEngine.Builder ab = new AdventEngine.Builder();
+        String line;
         while((line = this.help.next()) != null) {
             ab.accept(line);
         }

@@ -18,6 +18,10 @@ public class Solver {
 //        System.out.println("Day3 Test:" + new Day3("input_d3t.txt").solve()); //4361
 //        System.out.println("Day3:" + new Day3("input_d3.txt").solve());
 //        System.out.println("Day3 P2 Test:" + new Day3("input_d3t.txt").solvePart2()); //467835
-        System.out.println("Day3 P2:" + new Day3("input_d3.txt").solvePart2());
+//        System.out.println("Day3 P2:" + new Day3("input_d3.txt").solvePart2());
+//        System.out.println("Day4 T:" + new Day4("input_d4t.txt").solve()); // 13
+//        System.out.println("Day4:" + new Day4("input_d4.txt").solve());
+        System.out.println("Day4 P2T:" + new Day4("input_d4t.txt").solvePart2()); // 30
+        System.out.println("Day4 P2:" + new Day4("input_d4.txt").solvePart2());
     }
 }
