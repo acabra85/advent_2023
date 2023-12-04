@@ -1,20 +1,18 @@
 package com.advent23;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
-public class Day3 extends ProblemBase {
+public class Day3 extends AdventDayBase {
     public Day3(String fileName) {
         super(fileName);
     }
 
     @Override
-    public AdventResult solve() throws IOException {
+    public AdventResult solve() {
         AdventEngine.Builder ab = new AdventEngine.Builder();
-        String line;
-        while((line = this.help.next()) != null) {
+        for(String line: this.lines) {
             ab.accept(line);
         }
         final AdventEngine build = ab.build();
@@ -22,10 +20,9 @@ public class Day3 extends ProblemBase {
     }
 
     @Override
-    public AdventResult solvePart2() throws IOException {
-        String line;
+    public AdventResult solvePart2() {
         AdventEngine.Builder ab = new AdventEngine.Builder();
-        while((line = this.help.next()) != null) {
+        for(String line: this.lines) {
             ab.accept(line);
         }
         final AdventEngine build = ab.build();

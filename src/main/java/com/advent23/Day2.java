@@ -1,19 +1,17 @@
 package com.advent23;
 
-import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.InputMismatchException;
 
-public class Day2 extends ProblemBase {
+public class Day2 extends AdventDayBase {
     public Day2(String fileName) {
         super(fileName);
     }
 
     @Override
-    public AdventResult solve() throws IOException {
-       String line;
+    public AdventResult solve() {
        long sum = 0;
-       while((line = this.help.next()) != null) {
+       for(String line: this.lines) {
             Game game = parseLine(line);
             if (game.isPossible()) {
                 sum += game.id;
@@ -50,10 +48,9 @@ public class Day2 extends ProblemBase {
     }
 
     @Override
-    public AdventResult solvePart2() throws IOException {
-        String line;
+    public AdventResult solvePart2() {
         long sum = 0;
-        while((line = this.help.next()) != null) {
+        for(String line: this.lines) {
             Game game = parseLine(line);
             sum += game.powerMinimalCubes();
         }

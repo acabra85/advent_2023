@@ -1,6 +1,5 @@
 package com.advent23;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Set;
@@ -10,27 +9,24 @@ import java.util.stream.Collectors;
 /**
  *
  */
-public class Day4 extends ProblemBase {
+public class Day4 extends AdventDayBase {
     public Day4(String fileName) {
         super(fileName);
     }
 
     @Override
-    public AdventResult solve() throws IOException {
-        String line;
+    public AdventResult solve() {
         long sum = 0;
-        while((line = this.help.next()) != null) {
+        for(String line: this.lines) {
             sum += parseCard(line).getCardValue();
         }
         return AdventResult.ofLong(sum);
     }
 
     @Override
-    public AdventResult solvePart2() throws IOException {
-        String line;
-        long sum = 0;
+    public AdventResult solvePart2() {
         ArrayList<Card> deck  = new ArrayList<>();
-        while((line = this.help.next()) != null) {
+        for(String line: this.lines) {
             deck.add(parseCard(line));
         }
         return AdventResult.ofLong(solveDeck(deck));

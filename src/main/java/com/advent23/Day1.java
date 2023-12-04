@@ -1,24 +1,27 @@
 package com.advent23;
 
-import java.io.*;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.HashMap;
+import java.util.InputMismatchException;
+import java.util.IntSummaryStatistics;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
-public class Day1 extends ProblemBase {
+public class Day1 extends AdventDayBase {
 
     public Day1(String fileName) {
         super(fileName);
     }
 
     @Override
-    public AdventResult solve() throws IOException {
+    public AdventResult solve() {
         IntSummaryStatistics is = new IntSummaryStatistics();
-        String next;
         int first = -1;
         int last = -1;
         char[] charArray;
-        while ((next = this.help.next()) != null) {
-            charArray = next.toCharArray();
+        for (String line: this.lines) {
+            charArray = line.toCharArray();
             for (char c : charArray) {
                 if (Character.isDigit(c)) {
                     first = (c - 48) * 10;
@@ -68,12 +71,11 @@ public class Day1 extends ProblemBase {
     record NumberKey(String name, char[] arr, int size, int number) {}
 
     @Override
-    public AdventResult solvePart2() throws IOException {
+    public AdventResult solvePart2() {
         IntSummaryStatistics is = new IntSummaryStatistics();
-        String next;
         char[] charArray;
         ArrayDeque<Integer> q;
-        while ((next = this.help.next()) != null) {
+        for (String next : this.lines) {
             q = new ArrayDeque<>();
             charArray = next.toLowerCase().toCharArray();
             for (int i = 0; i < charArray.length; i++) {
