@@ -5,6 +5,8 @@ import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 public class Day5 extends AdventDayBase {
+
+    static final boolean REPORT_PROGRESS = true;
     private AdventAgriculture adventAgriculture;
 
     public Day5(String fileName) {
@@ -91,14 +93,26 @@ public class Day5 extends AdventDayBase {
     }
 
     private static Long getMinFromCompletableFutures(ArrayList<CompletableFuture<Long>> cfs) throws InterruptedException, ExecutionException {
-        return CompletableFuture.allOf(cfs.toArray(new CompletableFuture[cfs.size()]))
+        final CompletableFuture<Void> failFast = CompletableFuture.allOf(cfs.toArray(new CompletableFuture[cfs.size()]));
+        final CompletableFuture<?> failure = new CompletableFuture<>();
+        cfs.forEach(f -> f.exceptionally(ex -> {
+            failure.completeExceptionally(ex);
+            return null;
+        }));
+        failure.exceptionally(ex -> {
+            cfs.forEach(f -> f.cancel(true));
+            return null;
+        });
+        return CompletableFuture.anyOf(failure, failFast)
                 .thenApply(
-                        v -> {
-                            return cfs.stream()
+                        v -> cfs.stream()
                                     .map(CompletableFuture::join)
                                     .min(Long::compare)
-                                    .get();
-                        })
+                                    .get()
+                        ).exceptionally(err -> {
+                            System.out.println("error: " + err);
+                            return -1L;
+                })
                 .get();
     }
 
@@ -280,7 +294,6 @@ public class Day5 extends AdventDayBase {
             for (long seed = seeds.start(); seed <= seeds.end(); ++seed) {
                 min.update(this.ag.resolveLocation(seed));
             }
-            boolean REPORT_PROGRESS = false;
             if (REPORT_PROGRESS) {
                 System.out.printf("\n %.2f %s",((this.id*1.0) / (this.totalSize * 1.0)) * 100, "%");
             }
