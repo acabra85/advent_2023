@@ -9,6 +9,9 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.ArrayDeque;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public abstract class AdventDayBase implements Solvable {
     protected final ArrayDeque<String> lines;
@@ -33,5 +36,15 @@ public abstract class AdventDayBase implements Solvable {
             lines.add(line);
         }
         return lines;
+    }
+
+    public static List<Integer> asInt(String line) {
+        final String[] split = line.split("\\s+");
+        return Arrays.stream(split).map(Integer::parseInt).collect(Collectors.toList());
+    }
+
+    public static List<Long> asLong(String line) {
+        final String[] split = line.split("\\s+");
+        return Arrays.stream(split).map(Long::parseLong).collect(Collectors.toList());
     }
 }

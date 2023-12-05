@@ -10,6 +10,10 @@ public record AdventResult(Object val) {
         return new AdventResult(val);
     }
 
+    public static AdventResult ofInt(int minLocation) {
+        return new AdventResult(minLocation);
+    }
+
     @Override
     public String toString() {
         if (val != null) {
