@@ -1,11 +1,7 @@
 package com.advent23;
 
-import java.util.ArrayDeque;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
+import java.util.*;
+import java.util.concurrent.*;
 import java.util.stream.Collectors;
 
 public class Day5 extends AdventDayBase {
@@ -65,107 +61,234 @@ public class Day5 extends AdventDayBase {
             this.adventAgriculture = parseAdventAgriculture();
         }
         ArrayDeque<Long> seeds = new ArrayDeque<>(this.adventAgriculture.seedsToPlant);
-        ArrayDeque<Range> ranges = new ArrayDeque<>();
-        while(!seeds.isEmpty()) {
-            ranges.addLast(new Range(seeds.removeFirst(), seeds.removeFirst()));
-        }
-        long minLocation = Long.MAX_VALUE;
-        for (Range range : ranges) {
-            for (int i = 0; i < range.end; ++i) {
-                minLocation = Math.min(minLocation, adventAgriculture.resolveLocation(range.start + i));
+        List<Range> ranges = splitRangeSeeds(seeds);
+        try (ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())) {
+            ArrayList<CompletableFuture<Long>> cfs = new ArrayList<>(ranges.size());
+            long rIdx = 0;
+            for (Range range : ranges) {
+                AdventRangeGrinder adventRangeGrinder = new AdventRangeGrinder(this.adventAgriculture, range, ++rIdx, ranges.size());
+                cfs.add(adventRangeGrinder.getCF());
+                CompletableFuture.runAsync(adventRangeGrinder, executor);
             }
+            return AdventResult.ofLong(getMinFromCompletableFutures(cfs));
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
         }
-        return AdventResult.ofLong(minLocation);
     }
 
-    private static class AdventAgriculture {
+    private static List<Range> splitRangeSeeds(ArrayDeque<Long> seeds) {
+        List<Range> ranges = new ArrayList<>();
+        while(!seeds.isEmpty()) {
+            ranges.addLast(new Range(seeds.peekFirst(), seeds.removeFirst() + seeds.peekFirst() - 1L, seeds.removeFirst()));
+        }
+        ranges = ranges.stream().map(r -> {
+            if (r.size > Range.BULK_SIZE) {
+                return r.split();
+            }
+            return List.of(r);
+        }).flatMap(List::stream).toList();
+        return ranges;
+    }
+
+    private static Long getMinFromCompletableFutures(ArrayList<CompletableFuture<Long>> cfs) throws InterruptedException, ExecutionException {
+        return CompletableFuture.allOf(cfs.toArray(new CompletableFuture[cfs.size()]))
+                .thenApply(
+                        v -> {
+                            return cfs.stream()
+                                    .map(CompletableFuture::join)
+                                    .min(Long::compare)
+                                    .get();
+                        })
+                .get();
+    }
+
+    static class MinNumber {
+        long value;
+        MinNumber() {
+            value = Long.MAX_VALUE;
+        }
+        long update(long check) {
+            value = Math.min(value, check);
+            return value;
+        }
+
+        Long getValue() {
+            return value;
+        }
+    }
+
+    static class AdventAgriculture {
         List<Long> seedsToPlant;
-        HashMap<Range, AdventMapInfo> soilToFertilizer;
-        private HashMap<Range, AdventMapInfo> fertilizerToWater;
-        private HashMap<Range, AdventMapInfo> waterToLight;
-        private HashMap<Range, AdventMapInfo> lightToTemperature;
-        private HashMap<Range, AdventMapInfo> temperatureToHumidity;
-        private HashMap<Range, AdventMapInfo> humidityToLocation;
-        private HashMap<Range, AdventMapInfo> seedToSoil;
+        LinkedHashMap<Range, Range> soilToFertilizer;
+        private LinkedHashMap<Range, Range> fertilizerToWater;
+        private LinkedHashMap<Range, Range> waterToLight;
+        private LinkedHashMap<Range, Range> lightToTemperature;
+        private LinkedHashMap<Range, Range> temperatureToHumidity;
+        private LinkedHashMap<Range, Range> humidityToLocation;
+        private LinkedHashMap<Range, Range> seedToSoil;
 
         public void readSeeds(List<Long> seeds) {
             this.seedsToPlant = seeds;
         }
 
         public int readSeedToSoil(List<String> collect, int start) {
-            this.seedToSoil = new HashMap<>();
+            this.seedToSoil = new LinkedHashMap<>();
             return processMap(this.seedToSoil, collect, start, "soil-to");
         }
 
         public int readSoilToFertilizer(List<String> collect, int start) {
-            this.soilToFertilizer = new HashMap<>();
-            return processMap(this.soilToFertilizer, collect, start, "fertilizer-");
+            this.soilToFertilizer = new LinkedHashMap<>();
+            int i = processMap(this.soilToFertilizer, collect, start, "fertilizer-");
+            return i;
+        }
+
+        /**
+         * I want to merge the maps, since the there is only 1 direction and too many jumps
+         * so instead of jumping from seed-soil-water-light-temperature-humidity-location
+         * do directly seed-location.
+         */
+        private LinkedHashMap<Range, Range> mergeMap(LinkedHashMap<Range, Range> a, LinkedHashMap<Range, Range> b) {
+            Set<Range> rangesA = a.keySet();
+            Set<Range> rangesB = b.keySet();
+            for (Range keyA : rangesA) {
+                Range valueA = a.get(keyA);
+                for (Range keyB : rangesB) {
+                    if (valueA.touches(keyB)) {
+                        valueA.merge(keyB);
+                    }
+                }
+            }
+            return a;
         }
 
         private int readFertilizerToWater(List<String> collect, int start) {
-            this.fertilizerToWater = new HashMap<>();
+            this.fertilizerToWater = new LinkedHashMap<>();
             return processMap(this.fertilizerToWater, collect, start, "water-");
         }
 
         private int readWaterToLight(List<String> collect, int start) {
-            this.waterToLight = new HashMap<>();
+            this.waterToLight = new LinkedHashMap<>();
             return processMap(this.waterToLight, collect, start, "light-");
         }
 
         private int readLightToTemperature(List<String> collect, int start) {
-            this.lightToTemperature = new HashMap<>();
+            this.lightToTemperature = new LinkedHashMap<>();
             return processMap(this.lightToTemperature, collect, start, "temperature-");
         }
 
         private int readTemperatureToHumidity(List<String> collect, int start) {
-            this.temperatureToHumidity = new HashMap<>();
+            this.temperatureToHumidity = new LinkedHashMap<>();
             return processMap(this.temperatureToHumidity, collect, start, "humidity-");
         }
 
         private int readHumidityToLocation(List<String> collect, int start) {
-            this.humidityToLocation = new HashMap<>();
+            this.humidityToLocation = new LinkedHashMap<>();
             return processMap(this.humidityToLocation, collect, start, null);
         }
 
-        private int processMap(HashMap<Range, AdventMapInfo> map, List<String> collect, int start, String stopKey) {
+        private int processMap(LinkedHashMap<Range, Range> map, List<String> collect, int start, String stopKey) {
+            ArrayList<Pair> pairs = new ArrayList<>();
             for (int i = start; i >= 0 && i < collect.size(); ++i) {
                 final String line = collect.get(i);
                 if (stopKey != null && line.startsWith(stopKey)) {
+                    pairs.sort(Comparator.comparingLong(a -> a.from.start));
+                    pairs.forEach((p) -> map.put(p.from, p.to));
                     return i - 1;
                 }
                 final List<Long> integers = AdventDayBase.asLong(line);
                 AdventMapInfo ami = new AdventMapInfo(integers.get(0), integers.get(1), integers.get(2));
-                map.put(new Range(ami.source, ami.source + ami.len), ami);
+                Range from = new Range(ami.source, ami.source + ami.len - 1, ami.len);
+                Range to = new Range(ami.dest, ami.dest + ami.len - 1, ami.len);
+                pairs.add(new Pair(from, to));
             }
+            pairs.sort(Comparator.comparingLong(a -> a.from.start));
+            pairs.forEach((p) -> map.put(p.from, p.to));
             return -1;
         }
 
-        public long resolveLocation(Long seed) {
-            long soil = resolve(seedToSoil.entrySet(), seed);
-            long fert = resolve(soilToFertilizer.entrySet(), soil);
-            long water = resolve(fertilizerToWater.entrySet(), fert);
-            long light = resolve(waterToLight.entrySet(), water);
-            long tem = resolve(lightToTemperature.entrySet(), light);
-            long hum = resolve(temperatureToHumidity.entrySet(), tem);
-            return resolve(humidityToLocation.entrySet(), hum);
+        long resolveLocation(Long seed) {
+            long soil = resolve(seedToSoil, seed);
+            long fert = resolve(soilToFertilizer, soil);
+            long water = resolve(fertilizerToWater, fert);
+            long light = resolve(waterToLight, water);
+            long tem = resolve(lightToTemperature, light);
+            long hum = resolve(temperatureToHumidity, tem);
+            return resolve(humidityToLocation, hum);
         }
 
-        private Long resolve(Set<Map.Entry<Range, AdventMapInfo>> ranges, Long search) {
-            TreeMap<Range, AdventMapInfo> tm = new TreeMap<>();
-            tm.d
-            for (Map.Entry<Range, AdventMapInfo> range : ranges) {
+        private Long resolve(LinkedHashMap<Range, Range> ranges, Long search) {
+            for (Map.Entry<Range, Range> range : ranges.entrySet()) {
                 if (range.getKey().belongs(search)) {
-                    final long offset = range.getKey().end - search;
-                    return range.getValue().dest + range.getValue().len - offset;
+                    return range.getValue().end - range.getKey().end + search;
                 }
             }
             return search;
         }
+
     }
+    record Pair(Range from, Range to) {}
     record AdventMapInfo(long dest, long source, long len){}
-    record Range(long start, long end){
+    record Range(long start, long end, long size){
         boolean belongs(long q) {
             return start <= q && q <= end;
+        }
+
+        public boolean touches(Range other) {
+            return belongs(other.start) || belongs(other.end);
+        }
+
+        public void merge(Range other) {
+
+        }
+        static final int BULK_SIZE = 4000000;
+
+        public List<Range> split() {
+            long mod = size % BULK_SIZE;
+            int pieces = Double.valueOf((size * 1.0) / (BULK_SIZE * 1.0)).intValue();
+            long curr = this.start;
+            long newEnd = 0;
+            List<Range> ranges = new ArrayList<>(pieces + (mod > 0 ? 1 : 0));
+            for (long i = 0; i < pieces; ++i) {
+                newEnd = curr + BULK_SIZE -1;
+                ranges.add(new Range(curr, newEnd, BULK_SIZE));
+                curr = newEnd + 1;
+            }
+            if (mod > 0) {
+                ranges.add(new Range(curr, curr + mod - 1, mod));
+            }
+            return ranges;
+        }
+    }
+    static class AdventRangeGrinder implements Runnable{
+        private final CompletableFuture<Long> cf;
+        private final Day5.Range seeds;
+        private final long id;
+        private final int totalSize;
+        private Day5.AdventAgriculture ag;
+
+        public AdventRangeGrinder(Day5.AdventAgriculture adventAgriculture, Day5.Range seeds, long idx, int size) {
+            this.cf = new CompletableFuture<>();
+            this.seeds = seeds;
+            this.ag = adventAgriculture;
+            this.id = idx;
+            this.totalSize = size;
+        }
+
+        @Override
+        public void run() {
+            Day5.MinNumber min = new Day5.MinNumber();
+            for (long seed = seeds.start(); seed <= seeds.end(); ++seed) {
+                min.update(this.ag.resolveLocation(seed));
+            }
+            boolean REPORT_PROGRESS = false;
+            if (REPORT_PROGRESS) {
+                System.out.printf("\n %.2f %s",((this.id*1.0) / (this.totalSize * 1.0)) * 100, "%");
+            }
+            this.cf.complete(min.getValue());
+        }
+
+        public CompletableFuture<Long> getCF() {
+            return this.cf;
         }
     }
 }

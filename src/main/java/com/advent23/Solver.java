@@ -23,9 +23,13 @@ public class Solver {
 //        System.out.println("Day4:" + new Day4("input_d4.txt").solve());
 //        System.out.println("Day4 P2T:" + new Day4("input_d4t.txt").solvePart2()); // 30
 //        System.out.println("Day4 P2:" + new Day4("input_d4.txt").solvePart2());
-//        System.out.println("Day5 T:" + new Day5("input_d5t.txt").solve()); // 35
+//        AdventResult solve = new Day5("input_d5t.txt").solve();
+//        System.out.println("Day5 T:" + solve); // 35
+//        assert solve.val().equals(35L);
 //        System.out.println("Day5:" + new Day5("input_d5.txt").solve());
-        System.out.println("Day5 P2T:" + new Day5("input_d5t.txt").solvePart2()); // 46
+//        AdventResult adventResult = new Day5("input_d5t.txt").solvePart2();
+//        System.out.println("Day5 P2T:" + adventResult); // 46
+//        assert adventResult.val().equals(46L);
         System.out.println("Day5 P2:" + new Day5("input_d5.txt").solvePart2());
     }
 }
