@@ -1,16 +1,22 @@
 package com.advent23;
 
+import com.advent23.helper.AdventGrinderBase;
 import com.advent23.helper.MultReducer;
 import com.advent23.helper.Pair;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.stream.Stream;
 
 public class Day6 extends AdventDayBase {
+
+    private static final Function<List<Long>, Long> MULTIPLY_ELEMENTS = (s) -> s.stream().reduce(1L, (a, b) -> a*b);
 
     public Day6(String fileName) {
         super(fileName);
@@ -23,8 +29,7 @@ public class Day6 extends AdventDayBase {
         try (ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())) {
             ArrayList<CompletableFuture<Long>> cfs = new ArrayList<>(timeHolding.length);
             for (int i = 0; i < timeHolding.length; ++i) {
-                final BoatRecordGrinder brg =
-                        new BoatRecordGrinder(this::howManyWays, new Pair<>(timeHolding[i], recordDistance[i]));
+                AdventGrinderBase<Pair<Long, Long>, Long> brg = buildGrinder(timeHolding[i], recordDistance[i]);
                 cfs.add(brg.getCF());
                 CompletableFuture.runAsync(brg, executor);
             }
@@ -32,7 +37,9 @@ public class Day6 extends AdventDayBase {
         }
     }
 
-    private Long howManyWays(long raceDuration, long toBeat) {
+    private Long howManyWays(Pair<Long, Long> pair) {
+        long raceDuration = pair.left();
+        long toBeat = pair.right();
         long ways = 0L;
         for (int i = 1; i < raceDuration; ++i) {
             long record = getDistance(raceDuration - i, raceDuration);
@@ -54,36 +61,17 @@ public class Day6 extends AdventDayBase {
         Long recordDistance = toLong(asJoinedString(lines.removeFirst(), Optional.empty(), Optional.of(1)));
         try (ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())) {
             ArrayList<CompletableFuture<Long>> cfs = new ArrayList<>(1);
-            final BoatRecordGrinder brg =
-                    new BoatRecordGrinder(this::howManyWays, new Pair<>(timeHolding, recordDistance));
+            final AdventGrinderBase<Pair<Long, Long>, Long> brg = buildGrinder(timeHolding, recordDistance);
             cfs.add(brg.getCF());
             CompletableFuture.runAsync(brg, executor);
             return AdventResult.ofLong(new MultReducer().getLong(cfs));
         }
     }
 
-    private class BoatRecordGrinder implements Runnable {
-        private final CompletableFuture<Long> cf;
-        private final BiFunction<Long, Long, Long> command;
-        private final Pair<Long> params;
-
-        public BoatRecordGrinder(BiFunction<Long, Long, Long> howManyWays, Pair<Long> params) {
-            this.command = howManyWays;
-            this.cf = new CompletableFuture<>();
-            this.params = params;
-        }
-
-        public CompletableFuture<Long> getCF() {
-            return cf;
-        }
-
-        @Override
-        public void run() {
-            try {
-                this.cf.complete(this.command.apply(params.left(), params.right()));
-            } catch (Throwable t) {
-                this.cf.completeExceptionally(t);
-            }
-        }
+    private AdventGrinderBase<Pair<Long, Long>, Long> buildGrinder(Long timeHolding, Long recordDistance) {
+        return new AdventGrinderBase<>(
+                this::howManyWays,
+                List.of(new Pair<>(timeHolding, recordDistance)),
+                MULTIPLY_ELEMENTS) {};
     }
 }

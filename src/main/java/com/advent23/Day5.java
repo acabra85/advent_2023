@@ -166,7 +166,7 @@ public class Day5 extends AdventDayBase {
         }
 
         private int processMap(LinkedHashMap<Range, Range> map, List<String> collect, int start, String stopKey) {
-            ArrayList<Pair<Range>> pairs = new ArrayList<>();
+            ArrayList<Pair<Range, Range>> pairs = new ArrayList<>();
             for (int i = start; i >= 0 && i < collect.size(); ++i) {
                 final String line = collect.get(i);
                 if (stopKey != null && line.startsWith(stopKey)) {

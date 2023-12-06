@@ -7,6 +7,10 @@ package com.advent23;
 public class Solver {
 
     public static void main(String[] args) throws Throwable {
+//        System.out.println("Day7 T:" + new Day7("input_d7t.txt").solve()); // 288
+//        System.out.println("Day7:" + new Day7("input_d7.txt").solve());
+//        System.out.println("Day7 P2T:" + new Day7("input_d7t.txt").solvePart2()); // 71503
+//        System.out.println("Day7 P2:" + new Day7("input_d7.txt").solvePart2());
 //        System.out.println("P1:" + new Day1("input_p1.txt").solve());
 //        System.out.println("P2:" + new Day1("input_p1.txt").solvePart2());
 //        System.out.println("P3:" + new Day2("input_p2.txt").solve());
@@ -30,8 +34,8 @@ public class Solver {
 //        assert adventResult.val().equals(46L);
 //        System.out.println("Day5 P2:" + new Day5("input_d5.txt").solvePart2());
         System.out.println("Day6 T:" + new Day6("input_d6t.txt").solve()); // 288
-        System.out.println("Day6:" + new Day6("input_d6.txt").solve());
+//        System.out.println("Day6:" + new Day6("input_d6.txt").solve());
         System.out.println("Day6 P2T:" + new Day6("input_d6t.txt").solvePart2()); // 71503
-        System.out.println("Day6 P2:" + new Day6("input_d6.txt").solvePart2());
+//        System.out.println("Day6 P2:" + new Day6("input_d6.txt").solvePart2());
     }
 }

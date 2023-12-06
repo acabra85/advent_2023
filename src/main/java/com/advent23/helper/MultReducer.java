@@ -2,8 +2,12 @@ package com.advent23.helper;
 
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.BinaryOperator;
 
 public class MultReducer {
+
+    public static final BinaryOperator<Long> LONG_BINARY_OPERATOR = (a, b) -> a * b;
+
     public MultReducer() {
     }
 
@@ -23,7 +27,7 @@ public class MultReducer {
                         v -> {
                             return cfs.stream()
                                     .map(CompletableFuture::join)
-                                    .reduce(1L, (a, b) -> a * b);
+                                    .reduce(1L, LONG_BINARY_OPERATOR);
                         }
                 ).exceptionally(err -> {
                     System.out.println("error: " + err);
