@@ -1,14 +1,12 @@
 package com.advent23;
 
-import java.io.IOException;
-
 /**
  * @author Agustin Cabra on 12/1/23.
  * @since
  */
 public class Solver {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args) throws Throwable {
 //        System.out.println("P1:" + new Day1("input_p1.txt").solve());
 //        System.out.println("P2:" + new Day1("input_p1.txt").solvePart2());
 //        System.out.println("P3:" + new Day2("input_p2.txt").solve());
@@ -31,9 +29,9 @@ public class Solver {
 //        System.out.println("Day5 P2T:" + adventResult); // 46
 //        assert adventResult.val().equals(46L);
 //        System.out.println("Day5 P2:" + new Day5("input_d5.txt").solvePart2());
-        System.out.println("Day6 T:" + new Day5("input_d6t.txt").solve());
-        System.out.println("Day6:" + new Day5("input_dt.txt").solve());
-        System.out.println("Day6 P2T:" + new Day5("input_d6t.txt").solvePart2());
-        System.out.println("Day6 P2:" + new Day5("input_dt.txt").solvePart2());
+        System.out.println("Day6 T:" + new Day6("input_d6t.txt").solve()); // 288
+        System.out.println("Day6:" + new Day6("input_d6.txt").solve());
+        System.out.println("Day6 P2T:" + new Day6("input_d6t.txt").solvePart2()); // 71503
+        System.out.println("Day6 P2:" + new Day6("input_d6.txt").solvePart2());
     }
 }

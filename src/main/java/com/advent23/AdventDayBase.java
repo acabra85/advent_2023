@@ -11,6 +11,7 @@ import java.io.PrintWriter;
 import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 public abstract class AdventDayBase implements Solvable {
@@ -38,13 +39,47 @@ public abstract class AdventDayBase implements Solvable {
         return lines;
     }
 
-    public static List<Integer> asInt(String line) {
+    public static List<Integer> asIntArray(String line) {
         final String[] split = line.split("\\s+");
         return Arrays.stream(split).map(Integer::parseInt).collect(Collectors.toList());
     }
 
-    public static List<Long> asLong(String line) {
+    public static List<Long> toLongArray(String line) {
         final String[] split = line.split("\\s+");
         return Arrays.stream(split).map(Long::parseLong).collect(Collectors.toList());
+    }
+
+    protected static long[] toLongArray(String line, Optional<Integer> skip) {
+        final String[] split = line.split("\\s+");
+        final Integer start = skip.orElse(0);
+        long[] holding = new long[split.length - start];
+        for (int i = start; i < split.length; ++i) {
+            holding[i-1] = Long.parseLong(split[i]);
+        }
+        return holding;
+    }
+
+    protected static int[] asIntArray(String line, Optional<Integer> skip) {
+        final String[] split = line.split("\\s+");
+        final Integer start = skip.orElse(0);
+        int[] arr = new int[split.length - start];
+        for (int i = start; i < split.length; ++i) {
+            arr[i-1] = Integer.parseInt(split[i]);
+        }
+        return arr;
+    }
+
+    protected static String asJoinedString(String line, Optional<String> delim, Optional<Integer> skip) {
+        final String[] split = line.split("\\s+");
+        final Integer start = skip.orElse(0);
+        StringBuilder sb = new StringBuilder();
+        for (int i = start; i < split.length; ++i) {
+            sb.append(split[i]);
+        }
+        return String.join(delim.orElse(""), sb.toString());
+    }
+
+    protected static Long toLong(String line) {
+        return Long.parseLong(line);
     }
 }

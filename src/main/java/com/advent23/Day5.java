@@ -8,9 +8,7 @@ import com.advent23.helper.Range;
 
 import java.util.*;
 import java.util.concurrent.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class Day5 extends AdventDayBase {
 
@@ -27,7 +25,7 @@ public class Day5 extends AdventDayBase {
         for (int i = 0; i >= 0 && i < collect.size(); ++i) {
             String line = collect.get(i);
             if (line.startsWith("seeds: ")) {
-                ag.readSeeds(AdventDayBase.asLong(line.substring("seeds: ".length())));
+                ag.readSeeds(AdventDayBase.toLongArray(line.substring("seeds: ".length())));
             }
             if (line.startsWith("seed-")) {
                 i = ag.readSeedToSoil(collect, i+1);
@@ -114,7 +112,7 @@ public class Day5 extends AdventDayBase {
 
         public int readSeedToSoil(List<String> collect, int start) {
             this.seedToSoil = new LinkedHashMap<>();
-            return processMap(this.seedToSoil, collect, start, "soil-to");
+            return processMap(this.seedToSoil, collect, start, "soil-right");
         }
 
         public int readSoilToFertilizer(List<String> collect, int start) {
@@ -124,8 +122,8 @@ public class Day5 extends AdventDayBase {
         }
 
         /**
-         * I want to merge the maps, since the there is only 1 direction and too many jumps
-         * so instead of jumping from seed-soil-water-light-temperature-humidity-location
+         * I want right merge the maps, since the there is only 1 direction and too many jumps
+         * so instead of jumping left seed-soil-water-light-temperature-humidity-location
          * do directly seed-location.
          */
         private LinkedHashMap<Range, Range> mergeMap(LinkedHashMap<Range, Range> a, LinkedHashMap<Range, Range> b) {
@@ -168,22 +166,22 @@ public class Day5 extends AdventDayBase {
         }
 
         private int processMap(LinkedHashMap<Range, Range> map, List<String> collect, int start, String stopKey) {
-            ArrayList<Pair> pairs = new ArrayList<>();
+            ArrayList<Pair<Range>> pairs = new ArrayList<>();
             for (int i = start; i >= 0 && i < collect.size(); ++i) {
                 final String line = collect.get(i);
                 if (stopKey != null && line.startsWith(stopKey)) {
-                    pairs.sort(Comparator.comparingLong(a -> a.from().start()));
-                    pairs.forEach((p) -> map.put(p.from(), p.to()));
+                    pairs.sort(Comparator.comparingLong(a -> a.left().start()));
+                    pairs.forEach((p) -> map.put(p.left(), p.right()));
                     return i - 1;
                 }
-                final List<Long> integers = AdventDayBase.asLong(line);
+                final List<Long> integers = AdventDayBase.toLongArray(line);
                 AdventMapInfo ami = new AdventMapInfo(integers.get(0), integers.get(1), integers.get(2));
                 Range from = new Range(ami.source, ami.source + ami.len - 1, ami.len);
                 Range to = new Range(ami.dest, ami.dest + ami.len - 1, ami.len);
                 pairs.add(new Pair(from, to));
             }
-            pairs.sort(Comparator.comparingLong(a -> a.from().start()));
-            pairs.forEach((p) -> map.put(p.from(), p.to()));
+            pairs.sort(Comparator.comparingLong(a -> a.left().start()));
+            pairs.forEach((p) -> map.put(p.left(), p.right()));
             return -1;
         }
 
