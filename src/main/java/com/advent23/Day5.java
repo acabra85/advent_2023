@@ -1,8 +1,16 @@
 package com.advent23;
 
+import com.advent23.helper.AdventRangeGrinder;
+import com.advent23.helper.MinNumber;
+import com.advent23.helper.MinReducer;
+import com.advent23.helper.Pair;
+import com.advent23.helper.Range;
+
 import java.util.*;
 import java.util.concurrent.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Day5 extends AdventDayBase {
 
@@ -67,12 +75,16 @@ public class Day5 extends AdventDayBase {
         try (ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())) {
             ArrayList<CompletableFuture<Long>> cfs = new ArrayList<>(ranges.size());
             long rIdx = 0;
+            AdventRangeGrinder.seeResults();
             for (Range range : ranges) {
-                AdventRangeGrinder adventRangeGrinder = new AdventRangeGrinder(this.adventAgriculture, range, ++rIdx, ranges.size());
+                AdventRangeGrinder<Long> adventRangeGrinder
+                        = new AdventRangeGrinder<>(this.adventAgriculture::resolveLocation, range.iterable(),
+                        new MinNumber<>(Long.MAX_VALUE, Math::min),
+                        ++rIdx, ranges.size());
                 cfs.add(adventRangeGrinder.getCF());
                 CompletableFuture.runAsync(adventRangeGrinder, executor);
             }
-            return AdventResult.ofLong(getMinFromCompletableFutures(cfs));
+            return AdventResult.ofLong(new MinReducer<>(((s) -> s.min(Long::compare)), -1L).getMin(cfs));
         } catch (Throwable e) {
             throw new RuntimeException(e);
         }
@@ -83,52 +95,7 @@ public class Day5 extends AdventDayBase {
         while(!seeds.isEmpty()) {
             ranges.addLast(new Range(seeds.peekFirst(), seeds.removeFirst() + seeds.peekFirst() - 1L, seeds.removeFirst()));
         }
-        ranges = ranges.stream().map(r -> {
-            if (r.size > Range.BULK_SIZE) {
-                return r.split();
-            }
-            return List.of(r);
-        }).flatMap(List::stream).toList();
-        return ranges;
-    }
-
-    private static Long getMinFromCompletableFutures(ArrayList<CompletableFuture<Long>> cfs) throws InterruptedException, ExecutionException {
-        final CompletableFuture<Void> failFast = CompletableFuture.allOf(cfs.toArray(new CompletableFuture[cfs.size()]));
-        final CompletableFuture<?> failure = new CompletableFuture<>();
-        cfs.forEach(f -> f.exceptionally(ex -> {
-            failure.completeExceptionally(ex);
-            return null;
-        }));
-        failure.exceptionally(ex -> {
-            cfs.forEach(f -> f.cancel(true));
-            return null;
-        });
-        return CompletableFuture.anyOf(failure, failFast)
-                .thenApply(
-                        v -> cfs.stream()
-                                    .map(CompletableFuture::join)
-                                    .min(Long::compare)
-                                    .get()
-                        ).exceptionally(err -> {
-                            System.out.println("error: " + err);
-                            return -1L;
-                })
-                .get();
-    }
-
-    static class MinNumber {
-        long value;
-        MinNumber() {
-            value = Long.MAX_VALUE;
-        }
-        long update(long check) {
-            value = Math.min(value, check);
-            return value;
-        }
-
-        Long getValue() {
-            return value;
-        }
+        return Range.transform(ranges, BULK_SIZE);
     }
 
     static class AdventAgriculture {
@@ -205,8 +172,8 @@ public class Day5 extends AdventDayBase {
             for (int i = start; i >= 0 && i < collect.size(); ++i) {
                 final String line = collect.get(i);
                 if (stopKey != null && line.startsWith(stopKey)) {
-                    pairs.sort(Comparator.comparingLong(a -> a.from.start));
-                    pairs.forEach((p) -> map.put(p.from, p.to));
+                    pairs.sort(Comparator.comparingLong(a -> a.from().start()));
+                    pairs.forEach((p) -> map.put(p.from(), p.to()));
                     return i - 1;
                 }
                 final List<Long> integers = AdventDayBase.asLong(line);
@@ -215,8 +182,8 @@ public class Day5 extends AdventDayBase {
                 Range to = new Range(ami.dest, ami.dest + ami.len - 1, ami.len);
                 pairs.add(new Pair(from, to));
             }
-            pairs.sort(Comparator.comparingLong(a -> a.from.start));
-            pairs.forEach((p) -> map.put(p.from, p.to));
+            pairs.sort(Comparator.comparingLong(a -> a.from().start()));
+            pairs.forEach((p) -> map.put(p.from(), p.to()));
             return -1;
         }
 
@@ -233,75 +200,15 @@ public class Day5 extends AdventDayBase {
         private Long resolve(LinkedHashMap<Range, Range> ranges, Long search) {
             for (Map.Entry<Range, Range> range : ranges.entrySet()) {
                 if (range.getKey().belongs(search)) {
-                    return range.getValue().end - range.getKey().end + search;
+                    return range.getValue().end() - range.getKey().end() + search;
                 }
             }
             return search;
         }
 
     }
-    record Pair(Range from, Range to) {}
     record AdventMapInfo(long dest, long source, long len){}
-    record Range(long start, long end, long size){
-        boolean belongs(long q) {
-            return start <= q && q <= end;
-        }
 
-        public boolean touches(Range other) {
-            return belongs(other.start) || belongs(other.end);
-        }
+    static final int BULK_SIZE = 4000000;
 
-        public void merge(Range other) {
-
-        }
-        static final int BULK_SIZE = 4000000;
-
-        public List<Range> split() {
-            long mod = size % BULK_SIZE;
-            int pieces = Double.valueOf((size * 1.0) / (BULK_SIZE * 1.0)).intValue();
-            long curr = this.start;
-            long newEnd = 0;
-            List<Range> ranges = new ArrayList<>(pieces + (mod > 0 ? 1 : 0));
-            for (long i = 0; i < pieces; ++i) {
-                newEnd = curr + BULK_SIZE -1;
-                ranges.add(new Range(curr, newEnd, BULK_SIZE));
-                curr = newEnd + 1;
-            }
-            if (mod > 0) {
-                ranges.add(new Range(curr, curr + mod - 1, mod));
-            }
-            return ranges;
-        }
-    }
-    static class AdventRangeGrinder implements Runnable{
-        private final CompletableFuture<Long> cf;
-        private final Day5.Range seeds;
-        private final long id;
-        private final int totalSize;
-        private Day5.AdventAgriculture ag;
-
-        public AdventRangeGrinder(Day5.AdventAgriculture adventAgriculture, Day5.Range seeds, long idx, int size) {
-            this.cf = new CompletableFuture<>();
-            this.seeds = seeds;
-            this.ag = adventAgriculture;
-            this.id = idx;
-            this.totalSize = size;
-        }
-
-        @Override
-        public void run() {
-            Day5.MinNumber min = new Day5.MinNumber();
-            for (long seed = seeds.start(); seed <= seeds.end(); ++seed) {
-                min.update(this.ag.resolveLocation(seed));
-            }
-            if (REPORT_PROGRESS) {
-                System.out.printf("\n %.2f %s",((this.id*1.0) / (this.totalSize * 1.0)) * 100, "%");
-            }
-            this.cf.complete(min.getValue());
-        }
-
-        public CompletableFuture<Long> getCF() {
-            return this.cf;
-        }
-    }
 }

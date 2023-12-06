@@ -30,6 +30,10 @@ public class Solver {
 //        AdventResult adventResult = new Day5("input_d5t.txt").solvePart2();
 //        System.out.println("Day5 P2T:" + adventResult); // 46
 //        assert adventResult.val().equals(46L);
-        System.out.println("Day5 P2:" + new Day5("input_d5.txt").solvePart2());
+//        System.out.println("Day5 P2:" + new Day5("input_d5.txt").solvePart2());
+        System.out.println("Day6 T:" + new Day5("input_d6t.txt").solve());
+        System.out.println("Day6:" + new Day5("input_dt.txt").solve());
+        System.out.println("Day6 P2T:" + new Day5("input_d6t.txt").solvePart2());
+        System.out.println("Day6 P2:" + new Day5("input_dt.txt").solvePart2());
     }
 }
