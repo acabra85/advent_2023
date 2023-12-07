@@ -38,7 +38,7 @@ public class Day1 extends AdventDayBase {
             if (first >= 0 && last >= 0) {
                 is.accept(first  + last);
             } else {
-                throw new InputMismatchException("expected positive digits");
+                throw new InputMismatchException("expected positive digits: %s, %s %s".formatted(first, last, line));
             }
             first = -1;
             last = -1;

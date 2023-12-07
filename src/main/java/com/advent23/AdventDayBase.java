@@ -16,7 +16,6 @@ import java.util.stream.Collectors;
 
 public abstract class AdventDayBase implements Solvable {
     protected final ArrayDeque<String> lines;
-
     public AdventDayBase(String fileName) {
         InputStream in = AdventDayBase.class.getClassLoader().getResourceAsStream(fileName);
         OutputStreamWriter out = new OutputStreamWriter(System.out);

@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 
 public class Day5 extends AdventDayBase {
 
-    static final boolean REPORT_PROGRESS = true;
     private AdventAgriculture adventAgriculture;
 
     public Day5(String fileName) {
@@ -73,7 +72,6 @@ public class Day5 extends AdventDayBase {
         try (ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())) {
             ArrayList<CompletableFuture<Long>> cfs = new ArrayList<>(ranges.size());
             long rIdx = 0;
-            AdventRangeGrinder.seeResults();
             for (Range range : ranges) {
                 AdventRangeGrinder<Long> adventRangeGrinder
                         = new AdventRangeGrinder<>(this.adventAgriculture::resolveLocation, range.iterable(),
@@ -112,7 +110,7 @@ public class Day5 extends AdventDayBase {
 
         public int readSeedToSoil(List<String> collect, int start) {
             this.seedToSoil = new LinkedHashMap<>();
-            return processMap(this.seedToSoil, collect, start, "soil-right");
+            return processMap(this.seedToSoil, collect, start, "soil-to");
         }
 
         public int readSoilToFertilizer(List<String> collect, int start) {
@@ -122,8 +120,8 @@ public class Day5 extends AdventDayBase {
         }
 
         /**
-         * I want right merge the maps, since the there is only 1 direction and too many jumps
-         * so instead of jumping left seed-soil-water-light-temperature-humidity-location
+         * I want to merge the maps, since the there is only 1 direction and too many jumps
+         * so instead of jumping from seed-soil-water-light-temperature-humidity-location
          * do directly seed-location.
          */
         private LinkedHashMap<Range, Range> mergeMap(LinkedHashMap<Range, Range> a, LinkedHashMap<Range, Range> b) {
