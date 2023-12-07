@@ -1,41 +1,49 @@
 package com.advent23;
 
+import java.lang.reflect.Constructor;
+import java.util.List;
+
 /**
  * @author Agustin Cabra on 12/1/23.
  * @since
  */
 public class Solver {
 
+    record DayResult(int id, String p1Test, String p2Test) {}
+    static final List<DayResult> DAYS = List.of(
+//            new DayResult(1, "142", null),
+//            new DayResult(2,"8", "2286"),
+//            new DayResult(3,"4361", "467835"),
+//            new DayResult(4,"13", "30"),
+//            new DayResult(5,"35", "46"),
+//            new DayResult(6,"288", "71503"),
+//            new DayResult(7,"6440", "5905"),
+              new DayResult(8, null, null)
+    );
     public static void main(String[] args) throws Throwable {
-        System.out.println("Day7 T:" + new Day7("input_d7t.txt").solve()); // 288
-        System.out.println("Day7:" + new Day7("input_d7.txt").solve());
-        System.out.println("Day7 P2T:" + new Day7("input_d7t.txt").solvePart2()); // 71503
-        System.out.println("Day7 P2:" + new Day7("input_d7.txt").solvePart2());
-//        System.out.println("P1:" + new Day1("input_p1.txt").solve());
-//        System.out.println("P2:" + new Day1("input_p1.txt").solvePart2());
-//        System.out.println("P3:" + new Day2("input_p2.txt").solve());
-//        System.out.println("PT3:" + new Day2("input_t2.txt").solve());
-//        System.out.println("PT3:" + new Day2("input_t2.txt").solvePart2());
-//        System.out.println("PT3:" + new Day2("input_p2.txt").solvePart2());
-//        System.out.println("Day3 Test:" + new Day3("input_d3t.txt").solve()); //4361
-//        System.out.println("Day3:" + new Day3("input_d3.txt").solve());
-//        System.out.println("Day3 P2 Test:" + new Day3("input_d3t.txt").solvePart2()); //467835
-//        System.out.println("Day3 P2:" + new Day3("input_d3.txt").solvePart2());
-//        System.out.println("Day4 T:" + new Day4("input_d4t.txt").solve()); // 13
-//        System.out.println("Day4:" + new Day4("input_d4.txt").solve());
-//        System.out.println("Day4 P2T:" + new Day4("input_d4t.txt").solvePart2()); // 30
-//        System.out.println("Day4 P2:" + new Day4("input_d4.txt").solvePart2());
-//        AdventResult solve = new Day5("input_d5t.txt").solve();
-//        System.out.println("Day5 T:" + solve); // 35
-//        assert solve.val().equals(35L);
-//        System.out.println("Day5:" + new Day5("input_d5.txt").solve());
-//        AdventResult adventResult = new Day5("input_d5t.txt").solvePart2();
-//        System.out.println("Day5 P2T:" + adventResult); // 46
-//        assert adventResult.val().equals(46L);
-//        System.out.println("Day5 P2:" + new Day5("input_d5.txt").solvePart2());
-//        System.out.println("Day6 T:" + new Day6("input_d6t.txt").solve()); // 288
-//        System.out.println("Day6:" + new Day6("input_d6.txt").solve());
-//        System.out.println("Day6 P2T:" + new Day6("input_d6t.txt").solvePart2()); // 71503
-//        System.out.println("Day6 P2:" + new Day6("input_d6.txt").solvePart2());
+        DAYS.forEach(Solver::validate);
+    }
+
+    private static void validate(DayResult dayResult) {
+        int day = dayResult.id;
+        String fileName = String.format("input_d%d.txt", day);
+        String fileNameTest = String.format("input_d%dt.txt", day);
+        try {
+            Class<?> dayClass = Solver.class.getClassLoader().loadClass(String.format("com.advent23.Day%d", day));
+            Constructor<?> constructor = dayClass.getConstructor(String.class);
+            System.out.printf("Day%d P1T: %s", day, validateResult(day, dayResult.p1Test, ((Solvable) constructor.newInstance(fileNameTest)).solve().val()));
+            System.out.printf(" P1: %s", validateResult(day, null, ((Solvable) constructor.newInstance(fileName)).solve().val()));
+            System.out.printf(" P2T: %s", validateResult(day, dayResult.p2Test, ((Solvable) constructor.newInstance(fileNameTest)).solvePart2().val()));
+            System.out.printf(" P2: %s%n", validateResult(day, null, ((Solvable) constructor.newInstance(fileName)).solvePart2().val()));
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static Object validateResult(int dayId, Object expected, Object actual) {
+        if (expected != null && !expected.toString().equals(actual.toString())) {
+            throw new AssertionError("Day%d: expected: %s, but got: %s".formatted(dayId, expected, actual));
+        }
+        return actual;
     }
 }

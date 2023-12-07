@@ -69,16 +69,21 @@ public class Day5 extends AdventDayBase {
         }
         ArrayDeque<Long> seeds = new ArrayDeque<>(this.adventAgriculture.seedsToPlant);
         List<Range> ranges = splitRangeSeeds(seeds);
-        try (ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())) {
+        int nThreads = Runtime.getRuntime().availableProcessors();
+        try (ExecutorService executor = Executors.newFixedThreadPool(nThreads)) {
             ArrayList<CompletableFuture<Long>> cfs = new ArrayList<>(ranges.size());
             long rIdx = 0;
+            if (AdventRangeGrinder.REPORT_PROGRESS) {
+                System.out.println();
+            }
             for (Range range : ranges) {
-                AdventRangeGrinder<Long> adventRangeGrinder
-                        = new AdventRangeGrinder<>(this.adventAgriculture::resolveLocation, range.iterable(),
-                        new MinNumber<>(Long.MAX_VALUE, Math::min),
-                        ++rIdx, ranges.size());
+                AdventRangeGrinder adventRangeGrinder
+                        = new AdventRangeGrinder(this.adventAgriculture::resolveLocation, range, ++rIdx, ranges.size());
                 cfs.add(adventRangeGrinder.getCF());
                 CompletableFuture.runAsync(adventRangeGrinder, executor);
+            }
+            if (AdventRangeGrinder.REPORT_PROGRESS) {
+                System.out.println();
             }
             return AdventResult.ofLong(new MinReducer<>(((s) -> s.min(Long::compare)), -1L).getMin(cfs));
         } catch (Throwable e) {

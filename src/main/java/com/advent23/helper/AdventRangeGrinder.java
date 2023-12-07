@@ -3,37 +3,32 @@ package com.advent23.helper;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 
-public class AdventRangeGrinder<T> implements Runnable{
-    private static boolean REPORT_PROGRESS = false;
-    private final CompletableFuture<T> cf;
-    private final Iterable<T> seeds;
+public class AdventRangeGrinder implements Runnable {
+    public static final boolean REPORT_PROGRESS = false;
+    private final CompletableFuture<Long> cf;
+    private final Range seeds;
     private final long id;
     private final int totalSize;
-    private final Function<T, T> ag;
-    private final MinNumber<T> min;
+    private final Function<Long, Long> ag;
+    private final MinNumber min;
 
-    public AdventRangeGrinder(Function<T, T> command, Iterable<T> seeds, MinNumber<T> min, long idx, int size) {
+    public AdventRangeGrinder(Function<Long, Long> command, Range range, long idx, int size) {
         this.cf = new CompletableFuture<>();
-        this.seeds = seeds;
+        this.seeds = range;
         this.ag = command;
         this.id = idx;
         this.totalSize = size;
-        this.min = min;
-    }
-
-    public static void seeResults() {
-        REPORT_PROGRESS = true;
+        this.min = new MinNumber();
     }
 
     @Override
     public void run() {
         try {
-            for (T seed : seeds) {
-                final T apply = this.ag.apply(seed);
-                min.update(apply);
+            for (Long seed : seeds.iterable()) {
+                min.update(this.ag.apply(seed));
             }
             if (REPORT_PROGRESS) {
-                System.out.printf("\n %.2f %s",((this.id*1.0) / (this.totalSize * 1.0)) * 100, "%");
+                System.out.printf(", %.2f %s",((this.id*1.0) / (this.totalSize * 1.0)) * 100, "%");
             }
             this.cf.complete(min.getValue());
         } catch (Throwable e) {
@@ -41,7 +36,7 @@ public class AdventRangeGrinder<T> implements Runnable{
         }
     }
 
-    public CompletableFuture<T> getCF() {
+    public CompletableFuture<Long> getCF() {
         return this.cf;
     }
 }

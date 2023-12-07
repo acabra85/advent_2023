@@ -7,19 +7,18 @@ import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-public class MinNumber<T> {
-    private final BiFunction<T, T, T> min;
-    private T value;
-    public MinNumber(T maxValue, BiFunction<T, T, T> min) {
-        value = maxValue;
-        this.min = min;
+public class MinNumber {
+    private long value;
+
+    public MinNumber() {
+        this.value = Long.MAX_VALUE;
     }
 
-    public void update(T check) {
-        value = this.min.apply(value, check);
+    public void update(long check) {
+        value = Math.min(value, check);
     }
 
-    public T getValue() {
+    public long getValue() {
         return value;
     }
 }
