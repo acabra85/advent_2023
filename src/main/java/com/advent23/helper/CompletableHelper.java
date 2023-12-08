@@ -1,17 +1,17 @@
 package com.advent23.helper;
 
+import com.advent23.Day8;
+
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.function.BinaryOperator;
+import java.util.stream.Collectors;
 
-public class MultReducer {
+public class CompletableHelper {
 
-    public static final BinaryOperator<Long> LONG_BINARY_OPERATOR = (a, b) -> a * b;
-
-    public MultReducer() {
-    }
-
-    public Long getLong(ArrayList<CompletableFuture<Long>> cfs) throws Exception {
+    public static List<Day8.GhostGrinderState> getGhostGrinders(
+            ArrayList<CompletableFuture<Day8.GhostGrinderState>> cfs
+    ) throws Exception {
         final CompletableFuture<Void> failFast = CompletableFuture.allOf(cfs.toArray(new CompletableFuture[cfs.size()]));
         final CompletableFuture<?> failure = new CompletableFuture<>();
         cfs.forEach(f -> f.exceptionally(ex -> {
@@ -27,14 +27,12 @@ public class MultReducer {
                         v -> {
                             return cfs.stream()
                                     .map(CompletableFuture::join)
-                                    .reduce(1L, LONG_BINARY_OPERATOR);
+                                    .collect(Collectors.toList());
                         }
                 ).exceptionally(err -> {
                     System.out.println("error: " + err);
-                    return 0L;
+                    return new ArrayList<>();
                 })
                 .get();
     }
-
-
 }
