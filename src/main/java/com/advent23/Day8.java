@@ -2,16 +2,9 @@ package com.advent23;
 
 import com.advent23.helper.CompletableHelper;
 import com.advent23.helper.MaxNumber;
-import com.advent23.helper.MinNumber;
 import com.advent23.helper.Pair;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -27,6 +20,7 @@ public class Day8 extends AdventDayBase {
     public static final String DEST = "ZZZ";
     public static final Predicate<String> ENDS_WITH_Z = p -> p.charAt(2) == 'Z';
     public static final Predicate<String> END_WITH_A = k -> k.charAt(2) == 'A';
+    private static final boolean BRUTE_FORCE = false;
 
     public Day8(String fileName) {
         super(fileName);
@@ -49,6 +43,18 @@ public class Day8 extends AdventDayBase {
     }
     private long findSimultaneousSteps(String stepStr, final Map<String, Pair<String, String>> map) throws Exception {
         List<String> aKeys = map.keySet().stream().filter(END_WITH_A).collect(Collectors.toList());
+        if (!BRUTE_FORCE) {
+            List<Long> counters = new ArrayList<>();
+            for (String aKey : aKeys) {
+                counters.add(findStepsNeededToReachZ(stepStr, map, aKey));
+            }
+            return counters.stream().reduce(1L, Day8::lcm);
+        }
+        return solveByBruteForce(stepStr, map, aKeys);
+    }
+
+    // This turns out to be a pitfall, as the answer is in the order of magnitude 10_000_000_000_000
+    private long solveByBruteForce(String stepStr, Map<String, Pair<String, String>> map, List<String> aKeys) throws Exception {
         try (ExecutorService ex = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())) {
             List<GhostGrinderState> ghostGrinders = getGhostGrinderStates(stepStr, map, aKeys, ex);
             Pair<Long, Long> count = countTotalSteps(ghostGrinders, ghostGrinders.getFirst().totalSteps);
@@ -60,6 +66,26 @@ public class Day8 extends AdventDayBase {
         } catch (Exception e) {
             throw e;
         }
+    }
+
+    private long findStepsNeededToReachZ(String stepStr, Map<String, Pair<String, String>> map, String aKey) {
+        StepIterator s = new StepIterator(stepStr);
+        String key = aKey;
+        Pair<String, String> currPair = map.get(key);
+        int counter = 1;
+        int i = 0;
+        List<Integer> counters = new ArrayList<>();
+        while(i < 4) {
+            key = currPair.getStr(s.next());
+            if (key.charAt(2) == 'Z') {
+                counters.add(counter);
+                counter = 0;
+                ++i;
+            }
+            currPair = map.get(key);
+            ++counter;
+        }
+        return counters.get(0);
     }
 
     private List<GhostGrinderState> getGhostGrinderStates(
@@ -222,5 +248,24 @@ public class Day8 extends AdventDayBase {
     @Override
     public AdventResult solvePart2() throws Throwable {
         return AdventResult.ofLong(findSimultaneousSteps(lines.removeFirst(), buildMap(lines)));
+    }
+
+    /**
+     * ref: <a href="https://www.baeldung.com/java-least-common-multiple">...</a>
+     */
+    public static long lcm(long number1, long number2) {
+        if (number1 == 1) return number2;
+        if (number1 == 0 || number2 == 0) {
+            return 0;
+        }
+        long absNumber1 = Math.abs(number1);
+        long absNumber2 = Math.abs(number2);
+        long absHigherNumber = Math.max(absNumber1, absNumber2);
+        long absLowerNumber = Math.min(absNumber1, absNumber2);
+        long lcm = absHigherNumber;
+        while (lcm % absLowerNumber != 0) {
+            lcm += absHigherNumber;
+        }
+        return lcm;
     }
 }
