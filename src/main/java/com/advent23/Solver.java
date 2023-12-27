@@ -17,13 +17,14 @@ public class Solver {
         }
 
         private static class DayResultBuilder {
-            private int day = -1;
+            private int id = -1;
             private Class<?> cls = null;
             private String p1T;
             private String p1 = null;
             private String p2T = null;
             private String p2 = null;
-            public DayResultBuilder day(int i) {
+            public DayResultBuilder id(int id) {
+                this.id = id;
                 return this;
             }
 
@@ -49,7 +50,7 @@ public class Solver {
             }
 
             public DayResult build() {
-                return new DayResult(this.day, this.cls, this.p1T, this.p2T, this.p1, this.p2);
+                return new DayResult(this.id, this.cls, this.p1T, this.p2T, this.p1, this.p2);
             }
         }
     }
@@ -62,8 +63,8 @@ public class Solver {
 //            new DayResult(6, Day6.class,"288", "71503", null, null),
 //            new DayResult(7, Day7.class,"6440", "5905", null, null),
 //              new DayResult(8, Day8.class, "6", "6", "20093", "22103062509257")
-//              new DayResult(9, Day9.class, "114", "2", "1702218515", "925")
-            DayResult.builder().day(10).withClass(Day10.class).build()
+//              new DayResult(9, Day9.class, "114", "2", "1702218515", "925"),
+            DayResult.builder().id(10).withClass(Day10.class).build()
     );
     public static void main(String[] args) throws Throwable {
         DAYS.forEach(Solver::validate);
