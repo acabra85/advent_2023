@@ -11,16 +11,17 @@ import java.util.List;
  */
 public class Solver {
 
-    record DayResult(int id, String p1Test, String p2Test, String p1, String p2) {}
+    record DayResult(int id, Class<?> dayClass, String p1Test, String p2Test, String p1, String p2) {}
     static final List<DayResult> DAYS = List.of(
-//            new DayResult(1, "142", null, null, null),
-//            new DayResult(2,"8", "2286", null, null),
-//            new DayResult(3,"4361", "467835", null, null),
-//            new DayResult(4,"13", "30", null, null),
-//            new DayResult(5,"35", "46", null, null),
-//            new DayResult(6,"288", "71503", null, null),
-//            new DayResult(7,"6440", "5905", null, null),
-              new DayResult(8, "6", "6", "20093", "22103062509257")
+//            new DayResult(1, Day1.class, "142", null, null, null),
+//            new DayResult(2, Day2.class,"8", "2286", null, null),
+//            new DayResult(3, Day3.class,"4361", "467835", null, null),
+//            new DayResult(4, Day4.class,"13", "30", null, null),
+//            new DayResult(5, Day5.class,"35", "46", null, null),
+//            new DayResult(6, Day6.class,"288", "71503", null, null),
+//            new DayResult(7, Day7.class,"6440", "5905", null, null),
+//              new DayResult(8, Day8.class, "6", "6", "20093", "22103062509257")
+              new DayResult(9, Day9.class, "114", "1702218515", null, null)
     );
     public static void main(String[] args) throws Throwable {
         DAYS.forEach(Solver::validate);
@@ -33,10 +34,9 @@ public class Solver {
         String fileNameTest2 = String.format("input_d%dt2.txt", day);
         String fileNamePart2 = String.format("input_d%dp2.txt", day);
         try {
-            Class<?> dayClass = Solver.class.getClassLoader().loadClass(String.format("com.advent23.Day%d", day));
-            Constructor<?> constructor = dayClass.getConstructor(String.class);
+            Constructor<?> constructor = dayResult.dayClass().getConstructor(String.class);
             System.out.printf("Day%d ", day);
-            System.out.printf("P1T: %s", day, validateResult(day, dayResult.p1Test, ((Solvable) constructor.newInstance(fileNameTest)).solve().val()));
+            System.out.printf("P1T: %s", validateResult(day, dayResult.p1Test, ((Solvable) constructor.newInstance(fileNameTest)).solve().val()));
             System.out.printf(" P1: %s", validateResult(day, dayResult.p1, ((Solvable) constructor.newInstance(fileName)).solve().val()));
             String P2T = FileHelper.exists(fileNameTest2) ? fileNameTest2 : fileNameTest;
             String P2 = FileHelper.exists(fileNamePart2) ? fileNamePart2 : fileName;
@@ -48,7 +48,7 @@ public class Solver {
     }
 
     private static Object validateResult(int dayId, Object expected, Object actual) {
-        if (expected != null && !expected.toString().equals(actual.toString())) {
+        if (expected != null && actual != null && !expected.toString().equals(actual.toString())) {
             throw new AssertionError("Day%d: expected: %s, but got: %s".formatted(dayId, expected, actual));
         }
         return actual;

@@ -9,6 +9,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -52,8 +53,8 @@ public abstract class AdventDayBase implements Solvable {
         final String[] split = line.split("\\s+");
         final Integer start = skip.orElse(0);
         long[] holding = new long[split.length - start];
-        for (int i = start; i < split.length; ++i) {
-            holding[i-1] = Long.parseLong(split[i]);
+        for (int i = start, j=0; i < split.length; ++i, ++j) {
+            holding[j] = Long.parseLong(split[i]);
         }
         return holding;
     }
@@ -62,8 +63,8 @@ public abstract class AdventDayBase implements Solvable {
         final String[] split = line.split("\\s+");
         final Integer start = skip.orElse(0);
         int[] arr = new int[split.length - start];
-        for (int i = start; i < split.length; ++i) {
-            arr[i-1] = Integer.parseInt(split[i]);
+        for (int i = start, j=0; i < split.length; ++i, ++j) {
+            arr[j] = Integer.parseInt(split[i]);
         }
         return arr;
     }
@@ -80,5 +81,15 @@ public abstract class AdventDayBase implements Solvable {
 
     protected static Long toLong(String line) {
         return Long.parseLong(line);
+    }
+
+    protected static List<Long> toLongList(String line, Optional<Integer> skip) {
+        final String[] split = line.split("\\s+");
+        final Integer start = skip.orElse(0);
+        List<Long> holding = new ArrayList<>(split.length - start);
+        for (int i = start, j=0; i < split.length; ++i, ++j) {
+            holding.add(Long.parseLong(split[i]));
+        }
+        return holding;
     }
 }
