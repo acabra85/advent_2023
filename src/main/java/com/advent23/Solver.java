@@ -11,7 +11,48 @@ import java.util.List;
  */
 public class Solver {
 
-    record DayResult(int id, Class<?> dayClass, String p1Test, String p2Test, String p1, String p2) {}
+    record DayResult(int id, Class<?> dayClass, String p1Test, String p2Test, String p1, String p2) {
+        public static DayResultBuilder builder() {
+            return new DayResultBuilder();
+        }
+
+        private static class DayResultBuilder {
+            private int day = -1;
+            private Class<?> cls = null;
+            private String p1T;
+            private String p1 = null;
+            private String p2T = null;
+            private String p2 = null;
+            public DayResultBuilder day(int i) {
+                return this;
+            }
+
+            public DayResultBuilder withClass(Class<?> cls) {
+                this.cls = cls;
+                return this;
+            }
+            public DayResultBuilder withP1T(String p1T){
+                this.p1T = p1T;
+                return this;
+            }
+            public DayResultBuilder withP2T(String p2T){
+                this.p2T = p2T;
+                return this;
+            }
+            public DayResultBuilder withP1(String p1){
+                this.p1 = p1;
+                return this;
+            }
+            public DayResultBuilder withP2(String p2){
+                this.p2 = p2;
+                return this;
+            }
+
+            public DayResult build() {
+                return new DayResult(this.day, this.cls, this.p1T, this.p2T, this.p1, this.p2);
+            }
+        }
+    }
     static final List<DayResult> DAYS = List.of(
 //            new DayResult(1, Day1.class, "142", null, null, null),
 //            new DayResult(2, Day2.class,"8", "2286", null, null),
@@ -21,7 +62,8 @@ public class Solver {
 //            new DayResult(6, Day6.class,"288", "71503", null, null),
 //            new DayResult(7, Day7.class,"6440", "5905", null, null),
 //              new DayResult(8, Day8.class, "6", "6", "20093", "22103062509257")
-              new DayResult(9, Day9.class, "114", "1702218515", null, null)
+//              new DayResult(9, Day9.class, "114", "2", "1702218515", "925")
+            DayResult.builder().day(10).withClass(Day10.class).build()
     );
     public static void main(String[] args) throws Throwable {
         DAYS.forEach(Solver::validate);

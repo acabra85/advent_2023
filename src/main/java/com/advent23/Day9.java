@@ -22,6 +22,15 @@ public class Day9 extends AdventDayBase {
     }
 
     private Long findNextNumber(List<Long> base) {
+        List<List<Long>> previous = buildLists(base);
+        long sum = 0;
+        for (int i = previous.size()-1; i>=0; --i) {
+            sum += previous.get(i).getLast();
+        }
+        return sum;
+    }
+
+    private List<List<Long>> buildLists(List<Long> base) {
         List<List<Long>> previous = new ArrayList<>();
         previous.add(base);
         boolean allZeroes = false;
@@ -35,15 +44,27 @@ public class Day9 extends AdventDayBase {
             }
             previous.add(list);
         }
-        long sum = 0;
-        for (int i = previous.size()-1; i>=0; --i) {
-            sum += previous.get(i).getLast();
-        }
-        return sum;
+        return previous;
     }
 
     @Override
     public AdventResult solvePart2() throws Throwable {
-        return AdventResult.ofLong(-1L);
+        List<Long> numbers = new ArrayList<>();
+        for (String line : this.lines) {
+            final List<Long> longs = AdventDayBase.toLongList(line, Optional.empty());
+            numbers.add(findPreviousNumber(longs));
+        }
+        return AdventResult.ofLong(numbers.stream().reduce(0L, Long::sum));
+    }
+
+    private Long findPreviousNumber(List<Long> base) {
+        List<List<Long>> previous = buildLists(base);
+        List<Long> nums = new ArrayList<>();
+        long sum = 0;
+        for (int i = previous.size()-2; i>=0; --i) {
+            sum = previous.get(i).getFirst() - sum;
+            nums.add(sum);
+        }
+        return nums.getLast();
     }
 }
