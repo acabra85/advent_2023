@@ -65,25 +65,27 @@ public class Solver {
             }
         }
     }
-    static final List<DayResult> DAYS = List.of(
-            DayResult.b().clazz(Day1.class).withP1T("142").build(),
-            DayResult.b().clazz(Day2.class).withP1T("8").withP2T("2286").build(),
-            DayResult.b().clazz(Day3.class).withP1T("4361").withP2T("467835").build(),
-            DayResult.b().clazz(Day4.class).withP1T("13").withP2T("30").build(),
-            DayResult.b().clazz(Day5.class).withP1T("35").withP2T("46").build(),
-            DayResult.b().clazz(Day6.class).withP1T("288").withP2T("71503").build(),
-            DayResult.b().clazz(Day7.class).withP1T("6440").withP2T("5905").build(),
+    static final List<DayResult.DayResultBuilder> DAYS = List.of(
+            DayResult.b().clazz(Day1.class).withP1T("142"),
+            DayResult.b().clazz(Day2.class).withP1T("8").withP2T("2286"),
+            DayResult.b().clazz(Day3.class).withP1T("4361").withP2T("467835"),
+            DayResult.b().clazz(Day4.class).withP1T("13").withP2T("30"),
+            DayResult.b().clazz(Day5.class).withP1T("35").withP2T("46"),
+            DayResult.b().clazz(Day6.class).withP1T("288").withP2T("71503"),
+            DayResult.b().clazz(Day7.class).withP1T("6440").withP2T("5905"),
             DayResult.b().clazz(Day8.class)
-                .withP1T("6").withP2T("6").withP1("20093").withP2("22103062509257").build(),
+                .withP1T("6").withP2T("6").withP1("20093").withP2("22103062509257"),
             DayResult.b().clazz(Day9.class)
-                    .withP1T("114").withP2T("2").withP1("1702218515").withP2("925").build(),
+                    .withP1T("114").withP2T("2").withP1("1702218515").withP2("925"),
             DayResult.b().clazz(Day10.class)
-                    .withP1T("8").withP1("7173").withP2T("10").withP2T2("126").withP2("291").build(),
-            DayResult.b().clazz(Day11.class).withP1T("374").withP1("10033566").toRun().build()
+                    .withP1T("8").withP1("7173").withP2T("10").withP2T2("126").withP2("291"),
+            DayResult.b().clazz(Day11.class)
+                    .withP1T("374").withP1("10033566").withP2T("82000210").withP2("560822911938").toRun()
     );
     public static void main(String[] args) {
         DAYS.stream()
-                .filter(DayResult::toRun)
+                .filter(builder -> builder.run)
+                .map(DayResult.DayResultBuilder::build)
                 .forEach(Solver::validate);
     }
 

@@ -8,7 +8,7 @@ public record Point(int x, int y) {
         return new Point(x, y);
     }
 
-    public int manhattan(Point g) {
+    public long manhattan(Point g) {
         return Math.abs(g.x - x) + Math.abs(g.y - y);
     }
 }
