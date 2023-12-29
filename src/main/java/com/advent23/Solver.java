@@ -12,7 +12,7 @@ import java.util.List;
 public class Solver {
 
     record DayResult(int id, boolean toRun, Class<?> dayClass, String p1Test, String p2Test, String p2Test2, String p1, String p2) {
-        static DayResultBuilder builder() {
+        static DayResultBuilder b() {
             return new DayResultBuilder();
         }
 
@@ -21,7 +21,6 @@ public class Solver {
         }
 
         private static class DayResultBuilder {
-            private int id = -1;
             private Class<?> cls = null;
             private String p1T;
             private String p1 = null;
@@ -29,13 +28,7 @@ public class Solver {
             private String p2 = null;
             private String p2t2 = null;
             private boolean run = false;
-
-            DayResultBuilder id(int id) {
-                this.id = id;
-                return this;
-            }
-
-            DayResultBuilder withClass(Class<?> cls) {
+            DayResultBuilder clazz(Class<?> cls) {
                 this.cls = cls;
                 return this;
             }
@@ -67,24 +60,26 @@ public class Solver {
             }
 
             DayResult build() {
-                return new DayResult(this.id, this.run, this.cls, this.p1T, this.p2T, this.p2t2, this.p1, this.p2);
+                int id = Integer.parseInt(this.cls.getSimpleName().substring("Day".length()));
+                return new DayResult(id, this.run, this.cls, this.p1T, this.p2T, this.p2t2, this.p1, this.p2);
             }
         }
     }
     static final List<DayResult> DAYS = List.of(
-            DayResult.builder().id(1).withClass(Day1.class).withP1T("142").build(),
-            DayResult.builder().id(2).withClass(Day2.class).withP1T("8").withP2T("2286").build(),
-            DayResult.builder().id(3).withClass(Day3.class).withP1T("4361").withP2T("467835").build(),
-            DayResult.builder().id(4).withClass(Day4.class).withP1T("13").withP2T("30").build(),
-            DayResult.builder().id(5).withClass(Day5.class).withP1T("35").withP2T("46").build(),
-            DayResult.builder().id(6).withClass(Day6.class).withP1T("288").withP2T("71503").build(),
-            DayResult.builder().id(7).withClass(Day7.class).withP1T("6440").withP2T("5905").build(),
-            DayResult.builder().id(8).withClass(Day8.class)
+            DayResult.b().clazz(Day1.class).withP1T("142").build(),
+            DayResult.b().clazz(Day2.class).withP1T("8").withP2T("2286").build(),
+            DayResult.b().clazz(Day3.class).withP1T("4361").withP2T("467835").build(),
+            DayResult.b().clazz(Day4.class).withP1T("13").withP2T("30").build(),
+            DayResult.b().clazz(Day5.class).withP1T("35").withP2T("46").build(),
+            DayResult.b().clazz(Day6.class).withP1T("288").withP2T("71503").build(),
+            DayResult.b().clazz(Day7.class).withP1T("6440").withP2T("5905").build(),
+            DayResult.b().clazz(Day8.class)
                 .withP1T("6").withP2T("6").withP1("20093").withP2("22103062509257").build(),
-            DayResult.builder().id(9).withClass(Day9.class)
+            DayResult.b().clazz(Day9.class)
                     .withP1T("114").withP2T("2").withP1("1702218515").withP2("925").build(),
-            DayResult.builder().id(10).withClass(Day10.class)
-                    .withP1T("8").withP1("7173").withP2T("10").withP2T2("126").withP2("291").toRun().build()
+            DayResult.b().clazz(Day10.class)
+                    .withP1T("8").withP1("7173").withP2T("10").withP2T2("126").withP2("291").build(),
+            DayResult.b().clazz(Day11.class).withP1T("374").withP1("10033566").toRun().build()
     );
     public static void main(String[] args) {
         DAYS.stream()
@@ -108,7 +103,9 @@ public class Solver {
             String P2 = FileHelper.exists(fileNamePart2) ? fileNamePart2 : fileName;
             String P2T2 = FileHelper.exists(fileNamePart2Test2) ? fileNamePart2Test2 : fileNameTest;
             System.out.printf(" P2T: %s", validateResult(day, dayResult.p2Test, ((Solvable) constructor.newInstance(P2T)).solvePart2().val()));
-            System.out.printf(" P2T2: %s", validateResult(day, dayResult.p2Test2, ((Solvable) constructor.newInstance(P2T2)).solvePart2().val()));
+            if (FileHelper.exists(fileNamePart2Test2)) {
+                System.out.printf(" P2T2: %s", validateResult(day, dayResult.p2Test2, ((Solvable) constructor.newInstance(P2T2)).solvePart2().val()));
+            }
             System.out.printf(" P2: %s%n", validateResult(day, dayResult.p2, ((Solvable) constructor.newInstance(P2)).solvePart2().val()));
         } catch (Throwable e) {
             System.out.println(e.getMessage());

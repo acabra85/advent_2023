@@ -1,6 +1,7 @@
 package com.advent23;
 
 import com.advent23.helper.Pair;
+import com.advent23.helper.Point;
 
 import java.awt.geom.Area;
 import java.awt.geom.Path2D;
@@ -51,12 +52,6 @@ public class Day10 extends AdventDayBase {
     private Direction getDirection(char key, PipeStart pipeStart, Point nextPos, Node node) {
         Function<Direction, Direction> fun = Objects.requireNonNull(PIPES_MAP.get(key));
         return fun.apply(node.to);
-    }
-
-    private Direction getNextDirection(Point nextPair, List<char[]> board, Direction to) {
-        char pipe = board.get(nextPair.x)[nextPair.y];
-        Function<Direction, Direction> function = PIPES_MAP.get(pipe);
-        return function.apply(to);
     }
 
     private Point getPair(Node node) {
@@ -129,12 +124,6 @@ public class Day10 extends AdventDayBase {
         }
     }
 
-    record Point(int x, int y){
-        public static Point of(int x, int y) {
-            return new Point(x, y);
-        }
-    }
-
 
     @Override
     public AdventResult solve() throws Throwable {
@@ -148,7 +137,7 @@ public class Day10 extends AdventDayBase {
         while(!q.isEmpty()) {
             node = q.pop();
             Point nextPos = getPair(node);
-            char key = pipeStart.board.get(nextPos.x)[nextPos.y];
+            char key = pipeStart.board.get(nextPos.x())[nextPos.y()];
             if (key == 'S') {
                 return AdventResult.ofStr((node.steps + 1)  / 2);
             }
@@ -178,14 +167,14 @@ public class Day10 extends AdventDayBase {
             if (!border.contains(node.point)) {
                 if (isFirst) {
                     isFirst = false;
-                    path.moveTo(node.point.x, node.point.y);
+                    path.moveTo(node.point.x(), node.point.y());
                 } else {
-                    path.lineTo(node.point.x, node.point.y);
+                    path.lineTo(node.point.x(), node.point.y());
                 }
             }
             border.add(node.point);
             Point nextPos = getPair(node);
-            char key = pipeStart.board.get(nextPos.x)[nextPos.y];
+            char key = pipeStart.board.get(nextPos.x())[nextPos.y()];
             if (key == 'S') {
                 return AdventResult.ofLong((new AdventShape(path, border)).countInternalTiles(pipeStart.board));
             }
