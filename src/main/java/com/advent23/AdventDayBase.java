@@ -92,4 +92,8 @@ public abstract class AdventDayBase implements Solvable {
         }
         return holding;
     }
+
+    protected AdventResult ofLong(long sum) {
+        return AdventResult.ofLong(sum);
+    }
 }

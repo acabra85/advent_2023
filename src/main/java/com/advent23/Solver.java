@@ -80,7 +80,8 @@ public class Solver {
             DayResult.b().clazz(Day10.class)
                     .withP1T("8").withP1("7173").withP2T("10").withP2T2("126").withP2("291"),
             DayResult.b().clazz(Day11.class)
-                    .withP1T("374").withP1("10033566").withP2T("82000210").withP2("560822911938").toRun()
+                    .withP1T("374").withP1("10033566").withP2T("82000210").withP2("560822911938"),
+            DayResult.b().clazz(Day12.class).withP1T("21").toRun()
     );
     public static void main(String[] args) {
         DAYS.stream()
