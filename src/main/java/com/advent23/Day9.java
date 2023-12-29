@@ -1,7 +1,5 @@
 package com.advent23;
 
-import edu.umd.cs.findbugs.detect.FindOpenStream;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;

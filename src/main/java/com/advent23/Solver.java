@@ -11,9 +11,13 @@ import java.util.List;
  */
 public class Solver {
 
-    record DayResult(int id, Class<?> dayClass, String p1Test, String p2Test, String p1, String p2) {
-        public static DayResultBuilder builder() {
+    record DayResult(int id, boolean toRun, Class<?> dayClass, String p1Test, String p2Test, String p2Test2, String p1, String p2) {
+        static DayResultBuilder builder() {
             return new DayResultBuilder();
+        }
+
+        public boolean toRun() {
+            return this.toRun;
         }
 
         private static class DayResultBuilder {
@@ -23,51 +27,69 @@ public class Solver {
             private String p1 = null;
             private String p2T = null;
             private String p2 = null;
-            public DayResultBuilder id(int id) {
+            private String p2t2 = null;
+            private boolean run = false;
+
+            DayResultBuilder id(int id) {
                 this.id = id;
                 return this;
             }
 
-            public DayResultBuilder withClass(Class<?> cls) {
+            DayResultBuilder withClass(Class<?> cls) {
                 this.cls = cls;
                 return this;
             }
-            public DayResultBuilder withP1T(String p1T){
+            DayResultBuilder withP1T(String p1T){
                 this.p1T = p1T;
                 return this;
             }
-            public DayResultBuilder withP2T(String p2T){
+            DayResultBuilder withP2T(String p2T){
                 this.p2T = p2T;
                 return this;
             }
-            public DayResultBuilder withP1(String p1){
+            DayResultBuilder withP1(String p1){
                 this.p1 = p1;
                 return this;
             }
-            public DayResultBuilder withP2(String p2){
+            DayResultBuilder withP2(String p2){
                 this.p2 = p2;
                 return this;
             }
 
-            public DayResult build() {
-                return new DayResult(this.id, this.cls, this.p1T, this.p2T, this.p1, this.p2);
+            DayResultBuilder toRun() {
+                this.run = true;
+                return this;
+            }
+
+            DayResultBuilder withP2T2(String p2t2) {
+                this.p2t2 = p2t2;
+                return this;
+            }
+
+            DayResult build() {
+                return new DayResult(this.id, this.run, this.cls, this.p1T, this.p2T, this.p2t2, this.p1, this.p2);
             }
         }
     }
     static final List<DayResult> DAYS = List.of(
-//            new DayResult(1, Day1.class, "142", null, null, null),
-//            new DayResult(2, Day2.class,"8", "2286", null, null),
-//            new DayResult(3, Day3.class,"4361", "467835", null, null),
-//            new DayResult(4, Day4.class,"13", "30", null, null),
-//            new DayResult(5, Day5.class,"35", "46", null, null),
-//            new DayResult(6, Day6.class,"288", "71503", null, null),
-//            new DayResult(7, Day7.class,"6440", "5905", null, null),
-//              new DayResult(8, Day8.class, "6", "6", "20093", "22103062509257")
-//              new DayResult(9, Day9.class, "114", "2", "1702218515", "925"),
-            DayResult.builder().id(10).withClass(Day10.class).build()
+            DayResult.builder().id(1).withClass(Day1.class).withP1T("142").build(),
+            DayResult.builder().id(2).withClass(Day2.class).withP1T("8").withP2T("2286").build(),
+            DayResult.builder().id(3).withClass(Day3.class).withP1T("4361").withP2T("467835").build(),
+            DayResult.builder().id(4).withClass(Day4.class).withP1T("13").withP2T("30").build(),
+            DayResult.builder().id(5).withClass(Day5.class).withP1T("35").withP2T("46").build(),
+            DayResult.builder().id(6).withClass(Day6.class).withP1T("288").withP2T("71503").build(),
+            DayResult.builder().id(7).withClass(Day7.class).withP1T("6440").withP2T("5905").build(),
+            DayResult.builder().id(8).withClass(Day8.class)
+                .withP1T("6").withP2T("6").withP1("20093").withP2("22103062509257").build(),
+            DayResult.builder().id(9).withClass(Day9.class)
+                    .withP1T("114").withP2T("2").withP1("1702218515").withP2("925").build(),
+            DayResult.builder().id(10).withClass(Day10.class)
+                    .withP1T("8").withP1("7173").withP2T("10").withP2T2("126").withP2("291").toRun().build()
     );
-    public static void main(String[] args) throws Throwable {
-        DAYS.forEach(Solver::validate);
+    public static void main(String[] args) {
+        DAYS.stream()
+                .filter(DayResult::toRun)
+                .forEach(Solver::validate);
     }
 
     private static void validate(DayResult dayResult) {
@@ -75,6 +97,7 @@ public class Solver {
         String fileName = String.format("input_d%d.txt", day);
         String fileNameTest = String.format("input_d%dt.txt", day);
         String fileNameTest2 = String.format("input_d%dt2.txt", day);
+        String fileNamePart2Test2 = String.format("input_d%dt3.txt", day);
         String fileNamePart2 = String.format("input_d%dp2.txt", day);
         try {
             Constructor<?> constructor = dayResult.dayClass().getConstructor(String.class);
@@ -83,16 +106,19 @@ public class Solver {
             System.out.printf(" P1: %s", validateResult(day, dayResult.p1, ((Solvable) constructor.newInstance(fileName)).solve().val()));
             String P2T = FileHelper.exists(fileNameTest2) ? fileNameTest2 : fileNameTest;
             String P2 = FileHelper.exists(fileNamePart2) ? fileNamePart2 : fileName;
+            String P2T2 = FileHelper.exists(fileNamePart2Test2) ? fileNamePart2Test2 : fileNameTest;
             System.out.printf(" P2T: %s", validateResult(day, dayResult.p2Test, ((Solvable) constructor.newInstance(P2T)).solvePart2().val()));
+            System.out.printf(" P2T2: %s", validateResult(day, dayResult.p2Test2, ((Solvable) constructor.newInstance(P2T2)).solvePart2().val()));
             System.out.printf(" P2: %s%n", validateResult(day, dayResult.p2, ((Solvable) constructor.newInstance(P2)).solvePart2().val()));
         } catch (Throwable e) {
-            throw new RuntimeException(e);
+            System.out.println(e.getMessage());
+            e.printStackTrace();
         }
     }
 
     private static Object validateResult(int dayId, Object expected, Object actual) {
         if (expected != null && actual != null && !expected.toString().equals(actual.toString())) {
-            throw new AssertionError("Day%d: expected: %s, but got: %s".formatted(dayId, expected, actual));
+            (new AssertionError("[ERROR! >>> Day%d]: expected: %s, but got: %s".formatted(dayId, expected, actual))).printStackTrace();
         }
         return actual;
     }
