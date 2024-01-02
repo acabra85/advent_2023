@@ -24,7 +24,7 @@ public class Day5 extends AdventDayBase {
         for (int i = 0; i >= 0 && i < collect.size(); ++i) {
             String line = collect.get(i);
             if (line.startsWith("seeds: ")) {
-                ag.readSeeds(AdventDayBase.toLongArray(line.substring("seeds: ".length())));
+                ag.readSeeds(AdventDayBase.toLongList(line.substring("seeds: ".length())));
             }
             if (line.startsWith("seed-")) {
                 i = ag.readSeedToSoil(collect, i+1);
@@ -177,7 +177,7 @@ public class Day5 extends AdventDayBase {
                     pairs.forEach((p) -> map.put(p.left(), p.right()));
                     return i - 1;
                 }
-                final List<Long> integers = AdventDayBase.toLongArray(line);
+                final List<Long> integers = AdventDayBase.toLongList(line);
                 AdventMapInfo ami = new AdventMapInfo(integers.get(0), integers.get(1), integers.get(2));
                 Range from = new Range(ami.source, ami.source + ami.len - 1, ami.len);
                 Range to = new Range(ami.dest, ami.dest + ami.len - 1, ami.len);

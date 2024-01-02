@@ -10,9 +10,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.function.BiFunction;
 import java.util.function.Function;
-import java.util.stream.Stream;
 
 public class Day6 extends AdventDayBase {
 
@@ -24,8 +22,8 @@ public class Day6 extends AdventDayBase {
 
     @Override
     public AdventResult solve() throws Exception {
-        long[] timeHolding = AdventDayBase.toLongArray(lines.removeFirst(), Optional.of(1));
-        long[] recordDistance = AdventDayBase.toLongArray(lines.removeFirst(), Optional.of(1));
+        long[] timeHolding = AdventDayBase.toLongArray(lines.removeFirst(), 1);
+        long[] recordDistance = AdventDayBase.toLongArray(lines.removeFirst(), 1);
         try (ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors())) {
             ArrayList<CompletableFuture<Long>> cfs = new ArrayList<>(timeHolding.length);
             for (int i = 0; i < timeHolding.length; ++i) {

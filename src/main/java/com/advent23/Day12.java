@@ -1,5 +1,6 @@
 package com.advent23;
 
+import java.util.List;
 import java.util.LongSummaryStatistics;
 
 /**
@@ -20,7 +21,9 @@ public class Day12 extends AdventDayBase {
     }
 
     private long processLine(String[] line) {
-        System.out.println(line[1]);
+        final String springs = line[0];
+        final List<Integer> groups = toIntList(line[1], ",");
+        System.out.println(springs + ": " + groups);
         return 0;
     }
 

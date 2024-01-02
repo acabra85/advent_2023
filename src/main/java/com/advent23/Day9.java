@@ -13,7 +13,7 @@ public class Day9 extends AdventDayBase {
     public AdventResult solve() throws Throwable {
         List<Long> numbers = new ArrayList<>();
         for (String line : this.lines) {
-            final List<Long> longs = AdventDayBase.toLongList(line, Optional.empty());
+            final List<Long> longs = AdventDayBase.toLongList(line);
             numbers.add(findNextNumber(longs));
         }
         return AdventResult.ofLong(numbers.stream().reduce(0L, Long::sum));
@@ -49,7 +49,7 @@ public class Day9 extends AdventDayBase {
     public AdventResult solvePart2() throws Throwable {
         List<Long> numbers = new ArrayList<>();
         for (String line : this.lines) {
-            final List<Long> longs = AdventDayBase.toLongList(line, Optional.empty());
+            final List<Long> longs = AdventDayBase.toLongList(line);
             numbers.add(findPreviousNumber(longs));
         }
         return AdventResult.ofLong(numbers.stream().reduce(0L, Long::sum));

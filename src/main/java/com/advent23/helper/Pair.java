@@ -1,8 +1,5 @@
 package com.advent23.helper;
 
-import com.advent23.Day10;
-import com.advent23.Day3;
-
 import java.util.Objects;
 
 public record Pair<L, R>(L left, R right) {

@@ -39,19 +39,24 @@ public abstract class AdventDayBase implements Solvable {
         return lines;
     }
 
-    public static List<Integer> asIntArray(String line) {
-        final String[] split = line.split("\\s+");
+    public static List<Integer> toIntList(String line, String regex) {
+        final String[] split = line.split(regex);
         return Arrays.stream(split).map(Integer::parseInt).collect(Collectors.toList());
     }
 
-    public static List<Long> toLongArray(String line) {
-        final String[] split = line.split("\\s+");
-        return Arrays.stream(split).map(Long::parseLong).collect(Collectors.toList());
+    protected static List<Long> toLongList(String line, Integer skip, Optional<String> regex) {
+        final String[] split = line.split(regex.orElse("\\s+"));
+        final int start = skip == null ? 0 : skip;
+        List<Long> holding = new ArrayList<>(split.length - start);
+        for (int i = start, j=0; i < split.length; ++i, ++j) {
+            holding.add(Long.parseLong(split[i]));
+        }
+        return holding;
     }
 
-    protected static long[] toLongArray(String line, Optional<Integer> skip) {
-        final String[] split = line.split("\\s+");
-        final Integer start = skip.orElse(0);
+    protected static long[] toLongArray(String line, Integer skip, Optional<String> regex) {
+        final String[] split = line.split(regex.orElse("\\s+"));
+        final int start = skip == null ? 0 : skip;
         long[] holding = new long[split.length - start];
         for (int i = start, j=0; i < split.length; ++i, ++j) {
             holding[j] = Long.parseLong(split[i]);
@@ -59,7 +64,7 @@ public abstract class AdventDayBase implements Solvable {
         return holding;
     }
 
-    protected static int[] asIntArray(String line, Optional<Integer> skip) {
+    protected static int[] toIntArray(String line, Optional<Integer> skip) {
         final String[] split = line.split("\\s+");
         final Integer start = skip.orElse(0);
         int[] arr = new int[split.length - start];
@@ -83,14 +88,12 @@ public abstract class AdventDayBase implements Solvable {
         return Long.parseLong(line);
     }
 
-    protected static List<Long> toLongList(String line, Optional<Integer> skip) {
-        final String[] split = line.split("\\s+");
-        final Integer start = skip.orElse(0);
-        List<Long> holding = new ArrayList<>(split.length - start);
-        for (int i = start, j=0; i < split.length; ++i, ++j) {
-            holding.add(Long.parseLong(split[i]));
-        }
-        return holding;
+    protected static List<Long> toLongList(String line) {
+        return toLongList(line, 0, Optional.empty());
+    }
+
+    protected static long[] toLongArray(String line, int skip) {
+        return toLongArray(line, skip, Optional.empty());
     }
 
     protected AdventResult ofLong(long sum) {
